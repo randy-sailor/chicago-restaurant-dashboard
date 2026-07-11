@@ -57,6 +57,8 @@ export async function ensureSchema() {
         updated_at timestamptz not null default now()
       );
 
+      alter table subscriptions add column if not exists last_digest_at timestamptz;
+
       create table if not exists user_profiles (
         user_id uuid primary key references users(id) on delete cascade,
         display_name text,
