@@ -574,6 +574,26 @@
       transform: translateY(-1px);
     }
 
+    .title-button {
+      display: inline;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+    }
+
+    .title-button:hover {
+      color: var(--tomato);
+      text-decoration: underline;
+    }
+
+    .title-button:focus-visible {
+      outline: 3px solid rgba(47, 97, 144, 0.32);
+      outline-offset: 2px;
+    }
+
     .card-art {
       min-height: 92px;
       padding: 12px;
@@ -1137,7 +1157,7 @@
         <span>Chicago Restaurant Dashboard</span>
       </button>
       <nav class="tabs" aria-label="Dashboard views">
-        <button class="tab active" data-view-button="discover">Discover</button>
+        <button class="tab active" data-view-button="discover" aria-current="true">Discover</button>
         <button class="tab" data-view-button="profile">Profile</button>
         <button class="tab" data-view-button="sources">Sources</button>
       </nav>
@@ -1258,7 +1278,7 @@
               </label>
               <button type="submit">Save eating profile</button>
             </form>
-            <p class="hint" id="preferenceStatus"></p>
+            <p class="hint" id="preferenceStatus" role="status"></p>
             <div class="metric-grid" id="profileMetrics"></div>
           </section>
           <div class="section-head">
@@ -1277,7 +1297,7 @@
           </section>
           <section class="panel panel-pad">
             <h2>Ingestion Status</h2>
-            <p class="hint" id="ingestionSummary">Loading source refresh status...</p>
+            <p class="hint" id="ingestionSummary" role="status">Loading source refresh status...</p>
             <div class="timeline" id="ingestionRuns"></div>
             <div class="timeline" id="ingestionItems"></div>
           </section>
@@ -1294,7 +1314,7 @@
       <section class="profile-panel">
         <div class="profile-card">
           <h2>Account</h2>
-          <p class="hint" id="accountStatus">Sign in or create a profile to sync taste signals and receive updates.</p>
+          <p class="hint" id="accountStatus" role="status">Sign in or create a profile to sync taste signals and receive updates.</p>
           <form id="accountForm" class="account-form">
             <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
             <button type="submit">Email me a sign-in code</button>
@@ -1320,7 +1340,7 @@
             </select>
             <button type="submit">Save notifications</button>
           </form>
-          <p class="hint" id="notificationStatus"></p>
+          <p class="hint" id="notificationStatus" role="status"></p>
         </div>
         <div class="profile-card">
           <h2>Live Profile</h2>
@@ -2453,7 +2473,10 @@
     function switchView(viewName) {
       state.view = viewName;
       document.querySelectorAll(".tab").forEach((button) => {
-        button.classList.toggle("active", button.dataset.viewButton === viewName);
+        const active = button.dataset.viewButton === viewName;
+        button.classList.toggle("active", active);
+        if (active) button.setAttribute("aria-current", "true");
+        else button.removeAttribute("aria-current");
       });
       document.querySelectorAll(".view").forEach((view) => {
         view.classList.toggle("active", view.id === `${viewName}View`);
@@ -2630,9 +2653,9 @@
       const occasions = uniq(RESTAURANTS.flatMap((r) => r.occasions));
       const cuisines = uniq(RESTAURANTS.flatMap((r) => r.cuisine));
       const neighborhoods = ["All", ...uniq(RESTAURANTS.map((r) => r.neighborhood))];
-      $("#laneFilters").innerHTML = LANE_DEFS.map((lane) => `<button class="lane-chip ${lane.id === state.lane ? "active" : ""}" data-lane="${lane.id}"><strong>${lane.label}</strong><span>${lane.note}</span></button>`).join("");
-      $("#occasionFilters").innerHTML = occasions.map((value) => `<button class="chip" data-filter="occasion" data-value="${value}">${value}</button>`).join("");
-      $("#cuisineFilters").innerHTML = cuisines.map((value) => `<button class="chip" data-filter="cuisine" data-value="${value}">${value}</button>`).join("");
+      $("#laneFilters").innerHTML = LANE_DEFS.map((lane) => `<button class="lane-chip ${lane.id === state.lane ? "active" : ""}" data-lane="${lane.id}" aria-pressed="${lane.id === state.lane}"><strong>${lane.label}</strong><span>${lane.note}</span></button>`).join("");
+      $("#occasionFilters").innerHTML = occasions.map((value) => `<button class="chip" data-filter="occasion" data-value="${value}" aria-pressed="false">${value}</button>`).join("");
+      $("#cuisineFilters").innerHTML = cuisines.map((value) => `<button class="chip" data-filter="cuisine" data-value="${value}" aria-pressed="false">${value}</button>`).join("");
       $("#neighborhoodSelect").innerHTML = neighborhoods.map((value) => `<option value="${value}">${value}</option>`).join("");
     }
 
@@ -2729,9 +2752,14 @@
       `).join("");
     }
 
+    let detailReturnFocus = null;
+
     function openDetail(html) {
       const overlay = $("#detailOverlay");
       const panel = $("#detailPanel");
+      if (!overlay.classList.contains("active")) {
+        detailReturnFocus = document.activeElement;
+      }
       panel.innerHTML = html;
       overlay.classList.add("active");
       overlay.setAttribute("aria-hidden", "false");
@@ -2742,6 +2770,8 @@
       $("#detailOverlay").classList.remove("active");
       $("#detailOverlay").setAttribute("aria-hidden", "true");
       $("#detailPanel").innerHTML = "";
+      if (detailReturnFocus?.isConnected) detailReturnFocus.focus();
+      detailReturnFocus = null;
     }
 
     function openRestaurantDetail(id) {
@@ -3010,7 +3040,10 @@
         button.dataset.fit = fit;
         button.style.left = `${Math.round(x)}px`;
         button.style.top = `${Math.round(y)}px`;
-        button.innerHTML = `<span>${restaurant.name} - ${restaurant.neighborhood}</span>`;
+        // The tooltip span is display:none until hover/focus, so it does not
+        // contribute an accessible name; label the pin explicitly.
+        button.setAttribute("aria-label", `Open details for ${restaurant.name} in ${restaurant.neighborhood}`);
+        button.innerHTML = `<span aria-hidden="true">${esc(restaurant.name)} - ${esc(restaurant.neighborhood)}</span>`;
         button.addEventListener("click", () => {
           openRestaurantDetail(restaurant.id);
         });
@@ -3027,14 +3060,14 @@
         const visited = state.profile.visited.includes(restaurant.id);
         const passed = state.profile.passed.includes(restaurant.id);
         return `
-          <article class="restaurant-card" id="card-${restaurant.id}" style="--tone:${restaurant.tone}" role="button" tabindex="0" data-restaurant-open="${restaurant.id}" aria-label="Open details for ${esc(restaurant.name)}">
+          <article class="restaurant-card" id="card-${restaurant.id}" style="--tone:${restaurant.tone}" data-restaurant-open="${restaurant.id}">
             <div class="card-art">
               <span class="badge">${esc(restaurant.neighborhood)}</span>
             </div>
             <div class="restaurant-body">
               <div class="restaurant-title">
                 <div>
-                  <h3>${esc(restaurant.name)}</h3>
+                  <h3><button class="title-button" type="button" data-restaurant-open="${restaurant.id}" aria-label="Open details for ${esc(restaurant.name)}">${esc(restaurant.name)}</button></h3>
                   <div class="meta-line">${esc(restaurant.format)}</div>
                   <div class="meta-line">${esc(priceLabel(restaurant.price))} · ${esc(restaurant.address)}</div>
                 </div>
@@ -3367,7 +3400,9 @@
         if (lane) {
           state.lane = lane.dataset.lane;
           document.querySelectorAll("[data-lane]").forEach((button) => {
-            button.classList.toggle("active", button.dataset.lane === state.lane);
+            const active = button.dataset.lane === state.lane;
+            button.classList.toggle("active", active);
+            button.setAttribute("aria-pressed", String(active));
           });
           render();
           return;
@@ -3378,7 +3413,8 @@
           const set = filter.dataset.filter === "occasion" ? state.occasions : state.cuisines;
           if (set.has(filter.dataset.value)) set.delete(filter.dataset.value);
           else set.add(filter.dataset.value);
-          filter.classList.toggle("active");
+          const active = filter.classList.toggle("active");
+          filter.setAttribute("aria-pressed", String(active));
           render();
         }
 
@@ -3406,19 +3442,28 @@
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && $("#detailOverlay").classList.contains("active")) {
+        const overlayActive = $("#detailOverlay").classList.contains("active");
+        if (event.key === "Escape" && overlayActive) {
           closeDetail();
+          return;
         }
-        // Only handle the card container itself: buttons inside the card
-        // already handle Enter/Space natively and must not be hijacked.
-        const target = event.target;
-        if (
-          target instanceof Element
-          && target.matches("article[data-restaurant-open]")
-          && (event.key === "Enter" || event.key === " ")
-        ) {
-          event.preventDefault();
-          openRestaurantDetail(target.dataset.restaurantOpen);
+        if (event.key === "Tab" && overlayActive) {
+          const focusables = $("#detailPanel").querySelectorAll(
+            "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled])"
+          );
+          if (!focusables.length) return;
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (!$("#detailPanel").contains(document.activeElement)) {
+            event.preventDefault();
+            first.focus();
+          } else if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
         }
       });
 
