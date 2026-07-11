@@ -1294,10 +1294,15 @@
       <section class="profile-panel">
         <div class="profile-card">
           <h2>Account</h2>
-          <p class="hint" id="accountStatus">Create a profile to sync taste signals and receive updates.</p>
+          <p class="hint" id="accountStatus">Sign in or create a profile to sync taste signals and receive updates.</p>
           <form id="accountForm" class="account-form">
             <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
-            <button type="submit">Create profile</button>
+            <button type="submit">Email me a sign-in code</button>
+          </form>
+          <form id="verifyForm" class="account-form" hidden>
+            <input id="codeInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d{6}" maxlength="6" placeholder="6-digit code" required>
+            <button type="submit">Verify and sign in</button>
+            <button type="button" class="chip" id="verifyCancel">Use a different email</button>
           </form>
           <button class="chip" type="button" id="logoutButton" hidden>Sign out</button>
         </div>
@@ -2437,6 +2442,7 @@
       sort: "match",
       mapZoom: 10,
       account: null,
+      pendingEmail: null,
       userProfile: null,
       ingestionStatus: null,
       profile: loadProfile()
@@ -2538,15 +2544,23 @@
     function renderAccount() {
       const status = $("#accountStatus");
       const form = $("#accountForm");
+      const verifyForm = $("#verifyForm");
       const logout = $("#logoutButton");
       if (state.account) {
         const name = profileSenderName();
         status.textContent = `Signed in as ${name}${name !== state.account.email ? ` (${state.account.email})` : ""}`;
         form.hidden = true;
+        verifyForm.hidden = true;
         logout.hidden = false;
+      } else if (state.pendingEmail) {
+        status.textContent = `We emailed a 6-digit code to ${state.pendingEmail}. Enter it to finish signing in.`;
+        form.hidden = true;
+        verifyForm.hidden = false;
+        logout.hidden = true;
       } else {
-        status.textContent = "Create a profile to sync taste signals and receive updates.";
+        status.textContent = "Sign in or create a profile to sync taste signals and receive updates.";
         form.hidden = false;
+        verifyForm.hidden = true;
         logout.hidden = true;
       }
     }
@@ -3149,21 +3163,44 @@
       $("#accountForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         const email = $("#emailInput").value;
-        $("#accountStatus").textContent = "Creating profile...";
+        $("#accountStatus").textContent = "Sending sign-in code...";
         try {
           const data = await api("/api/auth/register", {
             method: "POST",
             body: JSON.stringify({ email })
           });
-          state.account = data.user;
-          state.userProfile = null;
-          $("#emailInput").value = "";
+          state.pendingEmail = data.email;
           renderAccount();
-          renderPreferenceForm();
-          $("#notificationStatus").textContent = "Profile created. Notification defaults are on.";
+          $("#codeInput").focus();
         } catch (error) {
           $("#accountStatus").textContent = error.message;
         }
+      });
+
+      $("#verifyForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const code = $("#codeInput").value;
+        $("#accountStatus").textContent = "Verifying code...";
+        try {
+          await api("/api/auth/verify", {
+            method: "POST",
+            body: JSON.stringify({ email: state.pendingEmail, code })
+          });
+          state.pendingEmail = null;
+          $("#emailInput").value = "";
+          $("#codeInput").value = "";
+          $("#notificationStatus").textContent = "Signed in. Notification defaults are on.";
+          await loadAccount();
+        } catch (error) {
+          $("#accountStatus").textContent = error.message;
+        }
+      });
+
+      $("#verifyCancel").addEventListener("click", () => {
+        state.pendingEmail = null;
+        $("#codeInput").value = "";
+        renderAccount();
+        $("#emailInput").focus();
       });
 
       $("#logoutButton").addEventListener("click", async () => {

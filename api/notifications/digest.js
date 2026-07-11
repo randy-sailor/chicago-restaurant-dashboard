@@ -2,16 +2,7 @@ import { query } from "../_lib/db.js";
 import { sendEmail } from "../_lib/email.js";
 import { restaurantDigestEmail } from "../_lib/emailTemplates.js";
 import { handleError, sendJson } from "../_lib/http.js";
-
-function requireCronSecret(req) {
-  const expected = process.env.CRON_SECRET;
-  if (!expected) return;
-  const supplied = req.headers.authorization?.replace(/^Bearer\s+/i, "");
-  const vercelCron = req.headers["x-vercel-cron"] === "1";
-  if (!vercelCron && supplied !== expected) {
-    throw Object.assign(new Error("Forbidden."), { statusCode: 403 });
-  }
-}
+import { requireCronSecret } from "../_lib/cron.js";
 
 function eventMatchesSubscription(event, subscription) {
   if (event.event_type === "announced") return subscription.hot_new;

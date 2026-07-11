@@ -3,7 +3,11 @@ import crypto from "node:crypto";
 const COOKIE_NAME = "crd_session";
 
 function secret() {
-  return process.env.APP_SECRET || "local-dev-secret-change-before-production";
+  if (process.env.APP_SECRET) return process.env.APP_SECRET;
+  if (process.env.NODE_ENV === "production") {
+    throw Object.assign(new Error("APP_SECRET is not configured."), { statusCode: 503 });
+  }
+  return "local-dev-secret-change-before-production";
 }
 
 function base64url(value) {
@@ -12,6 +16,12 @@ function base64url(value) {
 
 function sign(payload) {
   return crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
+}
+
+function safeEqual(a, b) {
+  const bufferA = Buffer.from(String(a));
+  const bufferB = Buffer.from(String(b));
+  return bufferA.length === bufferB.length && crypto.timingSafeEqual(bufferA, bufferB);
 }
 
 export function createSessionCookie(user) {
@@ -35,7 +45,7 @@ export function readSession(req) {
   if (!raw) return null;
   const token = raw.slice(COOKIE_NAME.length + 1);
   const [payload, signature] = token.split(".");
-  if (!payload || !signature || sign(payload) !== signature) return null;
+  if (!payload || !signature || !safeEqual(sign(payload), signature)) return null;
 
   try {
     const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));

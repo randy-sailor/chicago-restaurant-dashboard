@@ -1,15 +1,6 @@
 import { runSourceIngestion } from "../_lib/ingestion.js";
 import { handleError, sendJson } from "../_lib/http.js";
-
-function requireCronSecret(req) {
-  const expected = process.env.CRON_SECRET;
-  if (!expected) return;
-  const supplied = req.headers.authorization?.replace(/^Bearer\s+/i, "");
-  const vercelCron = req.headers["x-vercel-cron"] === "1";
-  if (!vercelCron && supplied !== expected) {
-    throw Object.assign(new Error("Forbidden."), { statusCode: 403 });
-  }
-}
+import { requireCronSecret } from "../_lib/cron.js";
 
 export default async function handler(req, res) {
   try {

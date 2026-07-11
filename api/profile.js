@@ -37,13 +37,16 @@ export default async function handler(req, res) {
     }
 
     const body = await readJson(req);
+    const pricePreference = ["$", "$$", "$$$", "$$$$"].includes(body.pricePreference)
+      ? body.pricePreference
+      : "";
     const values = {
       displayName: cleanText(body.displayName, 80),
       homeNeighborhood: cleanText(body.homeNeighborhood, 80),
       favoriteCuisines: cleanList(body.favoriteCuisines),
       dietaryPreferences: cleanList(body.dietaryPreferences),
       diningOccasions: cleanList(body.diningOccasions),
-      pricePreference: cleanText(body.pricePreference, 20),
+      pricePreference,
       bio: cleanText(body.bio, 500)
     };
 

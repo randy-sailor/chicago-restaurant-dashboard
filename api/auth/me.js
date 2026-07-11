@@ -1,9 +1,10 @@
 import { query } from "../_lib/db.js";
 import { readSession } from "../_lib/session.js";
-import { handleError, sendJson } from "../_lib/http.js";
+import { assertMethod, handleError, sendJson } from "../_lib/http.js";
 
 export default async function handler(req, res) {
   try {
+    assertMethod(req, "GET");
     const session = readSession(req);
     if (!session) {
       sendJson(res, 200, { user: null });
