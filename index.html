@@ -2530,15 +2530,30 @@
       return data;
     }
 
-    function applyRemoteEvents(events = []) {
-      const next = { saved: [], visited: [], passed: [], events: [] };
-      events.slice().reverse().forEach((event) => {
-        const key = event.action;
-        if (!next[key].includes(event.restaurant_id)) next[key].push(event.restaurant_id);
-        next.events.unshift({ key, id: event.restaurant_id, at: event.created_at });
+    function applyRemoteSignals(signals = []) {
+      const next = { saved: [], visited: [], passed: [], events: state.profile.events || [] };
+      signals.forEach((signal) => {
+        if (next[signal.action] && !next[signal.action].includes(signal.restaurant_id)) {
+          next[signal.action].push(signal.restaurant_id);
+        }
       });
       state.profile = next;
       saveProfile();
+    }
+
+    // Push signals recorded while signed out up to the server, once, at the
+    // moment of an explicit sign-in. On regular loads the server state wins.
+    async function pushLocalSignals() {
+      const pushes = [];
+      ["saved", "visited", "passed"].forEach((action) => {
+        (state.profile[action] || []).forEach((id) => {
+          pushes.push(api("/api/profile/event", {
+            method: "POST",
+            body: JSON.stringify({ action, restaurantId: id, active: true })
+          }).catch(() => null));
+        });
+      });
+      await Promise.all(pushes);
     }
 
     function renderAccount() {
@@ -2596,7 +2611,7 @@
         const data = await api("/api/auth/me");
         state.account = data.user;
         state.userProfile = data.profile ? normalizeUserProfile(data.profile) : null;
-        if (data.events?.length) applyRemoteEvents(data.events);
+        if (data.user) applyRemoteSignals(data.signals || []);
         applySubscription(data.subscription);
       } catch {
         state.account = null;
@@ -3130,11 +3145,16 @@
     function toggleArrayValue(key, id) {
       const list = state.profile[key];
       const index = list.indexOf(id);
-      if (index >= 0) list.splice(index, 1);
-      else list.push(id);
-      if (key !== "passed") {
-        const passedIndex = state.profile.passed.indexOf(id);
-        if (passedIndex >= 0) state.profile.passed.splice(passedIndex, 1);
+      const active = index < 0;
+      if (active) list.push(id);
+      else list.splice(index, 1);
+      if (active) {
+        // Mirror the server rule: passed excludes saved/visited and vice versa.
+        const clears = key === "passed" ? ["saved", "visited"] : ["passed"];
+        clears.forEach((other) => {
+          const otherIndex = state.profile[other].indexOf(id);
+          if (otherIndex >= 0) state.profile[other].splice(otherIndex, 1);
+        });
       }
       state.profile.events.unshift({ key, id, at: new Date().toISOString() });
       state.profile.events = state.profile.events.slice(0, 80);
@@ -3142,7 +3162,7 @@
       if (state.account) {
         api("/api/profile/event", {
           method: "POST",
-          body: JSON.stringify({ action: key, restaurantId: id })
+          body: JSON.stringify({ action: key, restaurantId: id, active })
         }).catch((error) => {
           console.warn("Profile sync failed", error);
         });
@@ -3190,6 +3210,7 @@
           $("#emailInput").value = "";
           $("#codeInput").value = "";
           $("#notificationStatus").textContent = "Signed in. Notification defaults are on.";
+          await pushLocalSignals();
           await loadAccount();
         } catch (error) {
           $("#accountStatus").textContent = error.message;
@@ -3388,10 +3409,16 @@
         if (event.key === "Escape" && $("#detailOverlay").classList.contains("active")) {
           closeDetail();
         }
-        const restaurantOpen = event.target.closest?.("[data-restaurant-open]");
-        if (restaurantOpen && (event.key === "Enter" || event.key === " ")) {
+        // Only handle the card container itself: buttons inside the card
+        // already handle Enter/Space natively and must not be hijacked.
+        const target = event.target;
+        if (
+          target instanceof Element
+          && target.matches("article[data-restaurant-open]")
+          && (event.key === "Enter" || event.key === " ")
+        ) {
           event.preventDefault();
-          openRestaurantDetail(restaurantOpen.dataset.restaurantOpen);
+          openRestaurantDetail(target.dataset.restaurantOpen);
         }
       });
 

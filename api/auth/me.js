@@ -11,14 +11,14 @@ export default async function handler(req, res) {
       return;
     }
 
-    const [subscription, events, profile] = await Promise.all([
+    const [subscription, signals, profile] = await Promise.all([
       query(`select hot_new, awarded, iconic, essential, frequency from subscriptions where user_id = $1`, [session.id]),
       query(
         `select restaurant_id, action, created_at
-         from taste_events
+         from taste_signals
          where user_id = $1
          order by created_at desc
-         limit 200`,
+         limit 500`,
         [session.id]
       ),
       query(
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     sendJson(res, 200, {
       user: session,
       subscription: subscription.rows[0] || null,
-      events: events.rows,
+      signals: signals.rows,
       profile: profile.rows[0] || null
     });
   } catch (error) {

@@ -77,6 +77,15 @@ export async function ensureSchema() {
         created_at timestamptz not null default now()
       );
 
+      create table if not exists taste_signals (
+        user_id uuid not null references users(id) on delete cascade,
+        restaurant_id text not null,
+        action text not null check (action in ('saved', 'visited', 'passed')),
+        created_at timestamptz not null default now(),
+        updated_at timestamptz not null default now(),
+        primary key (user_id, restaurant_id, action)
+      );
+
       create table if not exists restaurant_events (
         id bigserial primary key,
         restaurant_id text not null,
