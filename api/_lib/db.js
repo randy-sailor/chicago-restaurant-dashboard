@@ -11,9 +11,15 @@ export function getPool() {
   }
 
   if (!pool) {
+    // Verify database TLS certificates by default. Set PGSSLMODE=disable for
+    // local Postgres without TLS, or DATABASE_SSL_NO_VERIFY=1 only for
+    // providers with self-signed certificates.
+    const ssl = process.env.PGSSLMODE === "disable"
+      ? false
+      : { rejectUnauthorized: process.env.DATABASE_SSL_NO_VERIFY !== "1" };
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false }
+      ssl
     });
   }
   return pool;
@@ -29,6 +35,18 @@ export async function ensureSchema() {
         last_seen_at timestamptz not null default now()
       );
 
+      alter table users add column if not exists verified_at timestamptz;
+
+      create table if not exists login_codes (
+        id bigserial primary key,
+        user_id uuid not null references users(id) on delete cascade,
+        code_hash text not null,
+        attempts integer not null default 0,
+        expires_at timestamptz not null,
+        consumed_at timestamptz,
+        created_at timestamptz not null default now()
+      );
+
       create table if not exists subscriptions (
         user_id uuid primary key references users(id) on delete cascade,
         hot_new boolean not null default true,
@@ -38,6 +56,8 @@ export async function ensureSchema() {
         frequency text not null default 'daily',
         updated_at timestamptz not null default now()
       );
+
+      alter table subscriptions add column if not exists last_digest_at timestamptz;
 
       create table if not exists user_profiles (
         user_id uuid primary key references users(id) on delete cascade,
@@ -57,6 +77,15 @@ export async function ensureSchema() {
         restaurant_id text not null,
         action text not null check (action in ('saved', 'visited', 'passed')),
         created_at timestamptz not null default now()
+      );
+
+      create table if not exists taste_signals (
+        user_id uuid not null references users(id) on delete cascade,
+        restaurant_id text not null,
+        action text not null check (action in ('saved', 'visited', 'passed')),
+        created_at timestamptz not null default now(),
+        updated_at timestamptz not null default now(),
+        primary key (user_id, restaurant_id, action)
       );
 
       create table if not exists restaurant_events (
@@ -119,12 +148,18 @@ export async function ensureSchema() {
         raw jsonb not null default '{}'::jsonb
       );
 
+      create index if not exists login_codes_user_created_idx on login_codes(user_id, created_at desc);
       create index if not exists taste_events_user_created_idx on taste_events(user_id, created_at desc);
       create index if not exists restaurant_events_email_idx on restaurant_events(emailed_at, occurred_at desc);
       create index if not exists recommendation_events_sender_created_idx on recommendation_events(sender_user_id, created_at desc);
       create index if not exists source_items_captured_idx on source_items(captured_at desc);
       create index if not exists ingested_restaurants_last_seen_idx on ingested_restaurants(last_seen_at desc);
-    `);
+    `).catch((error) => {
+      // Reset so the next request retries instead of caching the failure
+      // until the serverless instance is recycled.
+      schemaReady = undefined;
+      throw error;
+    });
   }
   return schemaReady;
 }

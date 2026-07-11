@@ -33,7 +33,7 @@ Offline-capable prototype for scouting Chicago restaurants from public sources.
 
 ## Source ingestion layer
 
-The seed data still lives in `RESTAURANTS` and `SOURCES` inside `index.html`, but production now also has a scheduled ingestion layer:
+The curated seed data lives in `data/restaurants.js` (shared by the frontend and the API), and production also has a scheduled ingestion layer:
 
 - `GET/POST /api/ingestion/run`: protected by Vercel Cron or `Authorization: Bearer $CRON_SECRET`.
 - `GET /api/ingestion/status`: latest ingestion runs, captured source items, and restaurant candidates.
@@ -41,6 +41,15 @@ The seed data still lives in `RESTAURANTS` and `SOURCES` inside `index.html`, bu
 - Current source refresh targets: Eater Chicago RSS, Time Out Chicago restaurants, Chicago Reader Food & Drink, and MICHELIN Guide Chicago.
 
 The next editorial workflow is to review `ingested_restaurants` and promote confirmed entries into the curated dashboard dataset.
+
+## Project structure
+
+- `index.html`: page markup only.
+- `styles.css`: all styling.
+- `app.js`: dashboard behavior.
+- `data/restaurants.js`: the canonical curated dataset (`window.DASHBOARD_DATA = <json>;`). The browser loads it as a script; the API reads and parses the same file via `api/_lib/restaurants.js`, so recommendations are validated against the same data the UI shows.
+- `api/`: Vercel serverless routes with shared helpers in `api/_lib/`.
+- `test/`: `node:test` unit tests for sessions, digest logic, ingestion parsing, templates, and the dataset.
 
 ## Run locally
 
@@ -52,13 +61,22 @@ python3 -m http.server 8000
 
 Then visit <http://127.0.0.1:8000/>.
 
+Run checks and tests:
+
+```bash
+npm install
+npm test
+```
+
 ## Production Backend
 
-The app now includes Vercel-compatible API routes for:
+The app includes Vercel-compatible API routes for:
 
-- Email registration and signed HttpOnly sessions: `POST /api/auth/register`
+- Request an email sign-in code: `POST /api/auth/register`
+- Verify the code and receive a signed HttpOnly session: `POST /api/auth/verify`
 - Current user/session/profile: `GET /api/auth/me`
-- Taste profile events: `POST /api/profile/event`
+- Sign out: `POST /api/auth/logout`
+- Taste signals (save/visit/pass, with toggle-off): `POST /api/profile/event`
 - Notification preferences: `GET/POST /api/subscriptions`
 - Restaurant lifecycle event capture: `POST /api/restaurants/capture-event`
 - Scheduled notification digest: `GET /api/notifications/digest`
@@ -67,15 +85,17 @@ The app now includes Vercel-compatible API routes for:
 - Scheduled source ingestion: `GET/POST /api/ingestion/run`
 - Source ingestion status: `GET /api/ingestion/status`
 
+Accounts are verified by a 6-digit emailed code (15-minute expiry, single use, rate limited) before any session cookie is issued. Recommendation emails are rate limited per sender and built entirely from the server-side dataset, so only curated restaurants can be shared. The digest honors each user's daily/weekly frequency via per-user delivery tracking (`subscriptions.last_digest_at`) and only emails verified users.
+
 Required environment variables:
 
-- `DATABASE_URL`: Postgres connection string, for example Neon, Supabase, or Vercel Postgres.
-- `APP_SECRET`: long random string for signed session cookies.
+- `DATABASE_URL`: Postgres connection string, for example Neon, Supabase, or Vercel Postgres. TLS certificates are verified by default; see `.env.example` for local overrides.
+- `APP_SECRET`: long random string for signed session cookies. The API refuses to start sessions without it in production.
 - `RESEND_API_KEY`: Resend API key for production email delivery.
 - `EMAIL_FROM`: verified sender address, for example `Chicago Restaurant Dashboard <updates@chicagorestaurantdashboard.com>`.
-- `CRON_SECRET`: bearer token for protected event ingestion.
+- `CRON_SECRET`: bearer token required by the cron/event routes (`/api/ingestion/run`, `/api/notifications/digest`, `/api/restaurants/capture-event`). These routes fail closed if it is unset. Vercel sends it automatically on scheduled invocations.
 
-`vercel.json` includes daily crons for `/api/ingestion/run` and `/api/notifications/digest`.
+`vercel.json` includes daily crons for `/api/ingestion/run` and `/api/notifications/digest`, plus security headers (CSP, frame-ancestors, nosniff).
 
 Resend note: while Resend is in testing mode, it only sends to the account owner's email. To send restaurant recommendations to arbitrary recipients, verify a sending domain in Resend and set `EMAIL_FROM` to an address on that domain.
 

@@ -123,6 +123,34 @@ function shell({ preview, eyebrow, title, intro, children, footerNote, ctaLabel 
 </html>`;
 }
 
+export function loginCodeEmail(code) {
+  return {
+    subject: `${code} is your Chicago Restaurant Dashboard sign-in code`,
+    text: [
+      `Your Chicago Restaurant Dashboard sign-in code is ${code}.`,
+      "It expires in 15 minutes. If you did not request this code, you can ignore this email."
+    ].join("\n\n"),
+    html: shell({
+      preview: `Your sign-in code is ${code}.`,
+      eyebrow: "Sign-in code",
+      title: "Confirm your email",
+      intro: "Enter this code in the dashboard to finish signing in. It expires in 15 minutes.",
+      children: `
+        <tr>
+          <td style="padding:0 0 12px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${palette.line};border-radius:8px;background:${palette.surface2};">
+              <tr>
+                <td style="padding:22px;text-align:center;font:800 34px/1 Arial, sans-serif;letter-spacing:.24em;color:${palette.ink};">${esc(code)}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      `,
+      footerNote: "If you did not request this code, no account access was granted and you can ignore this email."
+    })
+  };
+}
+
 export function profileReadyEmail() {
   return {
     subject: "Your Chicago Restaurant Dashboard profile is ready",

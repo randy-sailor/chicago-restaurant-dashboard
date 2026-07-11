@@ -1,9 +1,12 @@
 import crypto from "node:crypto";
 import { query } from "../_lib/db.js";
-import { createSessionCookie } from "../_lib/session.js";
 import { assertMethod, handleError, readJson, sendJson } from "../_lib/http.js";
 import { sendEmail } from "../_lib/email.js";
-import { profileReadyEmail } from "../_lib/emailTemplates.js";
+import { loginCodeEmail } from "../_lib/emailTemplates.js";
+import { hashLoginCode } from "../_lib/loginCodes.js";
+
+const CODE_TTL_MINUTES = 15;
+const MAX_CODES_PER_WINDOW = 5;
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -29,32 +32,42 @@ export default async function handler(req, res) {
     );
     const user = result.rows[0];
 
-    await query(
-      `insert into subscriptions (user_id)
-       values ($1)
-       on conflict (user_id) do nothing`,
+    const recent = await query(
+      `select count(*)::int as count
+       from login_codes
+       where user_id = $1 and created_at > now() - interval '15 minutes'`,
       [user.id]
     );
-
-    let emailStatus = { sent: true };
-    try {
-      const email = profileReadyEmail();
-      await sendEmail({
-        to: user.email,
-        subject: email.subject,
-        text: email.text,
-        html: email.html
-      });
-    } catch (emailError) {
-      emailStatus = { sent: false, error: "Profile created, but the confirmation email could not be sent yet." };
-      console.error("[auth/register:email]", {
-        message: emailError.message,
-        statusCode: emailError.statusCode,
-        code: emailError.code
-      });
+    if (recent.rows[0].count >= MAX_CODES_PER_WINDOW) {
+      throw Object.assign(
+        new Error("Too many sign-in codes requested. Wait a few minutes and try again."),
+        { statusCode: 429 }
+      );
     }
 
-    sendJson(res, 200, { user, email: emailStatus }, { "Set-Cookie": createSessionCookie(user) });
+    const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    await query(
+      `insert into login_codes (user_id, code_hash, expires_at)
+       values ($1, $2, now() + interval '${CODE_TTL_MINUTES} minutes')`,
+      [user.id, hashLoginCode(code)]
+    );
+
+    const message = loginCodeEmail(code);
+    const delivery = await sendEmail({
+      to: user.email,
+      subject: message.subject,
+      text: message.text,
+      html: message.html
+    });
+    if (delivery?.dryRun) {
+      console.log(`[auth/register:dry-run] sign-in code for ${user.email}: ${code}`);
+    }
+
+    sendJson(res, 200, {
+      pending: true,
+      email: user.email,
+      expiresInMinutes: CODE_TTL_MINUTES
+    });
   } catch (error) {
     handleError(res, error);
   }

@@ -1,6 +1,7 @@
 export function sendJson(res, statusCode, body, headers = {}) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
     ...headers
   });
   res.end(JSON.stringify(body));
@@ -25,8 +26,9 @@ export function handleError(res, error) {
     code: error.code,
     stack: error.stack
   });
+  // Only expose 4xx messages: 5xx details can leak configuration state.
   sendJson(res, statusCode, {
-    error: statusCode === 500 ? "Internal server error." : error.message
+    error: statusCode >= 500 ? "Internal server error." : error.message
   });
 }
 

@@ -56,7 +56,7 @@ const GENERIC_LIST_PATTERNS = [
   /coffee shops/i
 ];
 
-function cleanText(value = "") {
+export function cleanText(value = "") {
   return String(value)
     .replace(/<!\[CDATA\[|\]\]>/g, "")
     .replace(/<[^>]+>/g, " ")
@@ -67,7 +67,7 @@ function cleanText(value = "") {
     .trim();
 }
 
-function slug(value) {
+export function slug(value) {
   return cleanText(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 }
 
@@ -90,7 +90,7 @@ function linkValue(xml) {
   return atom ? atom[1] : "";
 }
 
-function parseRssItems(xml, source) {
+export function parseRssItems(xml, source) {
   const itemMatches = [...xml.matchAll(/<item\b[\s\S]*?<\/item>/gi)];
   const entryMatches = [...xml.matchAll(/<entry\b[\s\S]*?<\/entry>/gi)];
   return [...itemMatches, ...entryMatches].slice(0, 30).map(([item]) => ({
@@ -103,7 +103,7 @@ function parseRssItems(xml, source) {
   })).filter((item) => item.title && item.url);
 }
 
-function parseHtmlItems(html, source) {
+export function parseHtmlItems(html, source) {
   const anchors = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
   const seen = new Set();
   return anchors.map(([, href, label]) => {
@@ -129,12 +129,12 @@ function parseHtmlItems(html, source) {
   }).filter(Boolean).slice(0, 35);
 }
 
-function isRestaurantItem(item) {
+export function isRestaurantItem(item) {
   const text = `${item.title} ${item.summary}`.toLowerCase();
   return RESTAURANT_HINTS.some((hint) => text.includes(hint));
 }
 
-function extractCandidateName(item) {
+export function extractCandidateName(item) {
   const title = cleanText(item.title)
     .replace(/^review:\s*/i, "")
     .replace(/\s+-\s+.*$/, "")
