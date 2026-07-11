@@ -1,0 +1,17 @@
+{
+  "name": "chicago-restaurant-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "check": "node scripts/check-app.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "vercel": "^44.7.3"
+  }
+}
