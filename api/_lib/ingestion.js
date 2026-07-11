@@ -43,6 +43,13 @@ const GENERIC_LIST_PATTERNS = [
   /^guide\s+to\s+/i,
   /restaurant openings/i,
   /anticipated restaurant openings/i,
+  /restaurants/i,
+  /dish crawl/i,
+  /iconic dish/i,
+  /high tea/i,
+  /explores/i,
+  /mainstay/i,
+  /comfort of/i,
   /michelin-starred restaurants/i,
   /restaurants in chicago/i,
   /delivery and takeout/i,
@@ -139,9 +146,7 @@ function extractCandidateName(item) {
   if (beforeVerb) return beforeVerb[1];
   const afterOf = title.match(/\bof\s+([A-Z][A-Za-z0-9&'’.\-\s]{2,70})$/);
   if (afterOf) return afterOf[1];
-  const afterAt = title.match(/\bat\s+(.{3,70})$/i);
-  if (afterAt) return afterAt[1];
-  return title.split(/[:,]/)[0].trim().slice(0, 70);
+  return "";
 }
 
 function normalizedDate(value) {
@@ -232,6 +237,13 @@ async function cleanupLowQualityCandidates() {
          name ~* '^\\d+\\s+'
          or name ~* '^(the best|best|every|all-time|where to|guide to)\\s+'
          or name ~* 'restaurant openings'
+         or name ~* 'restaurants'
+         or name ~* 'dish crawl'
+         or name ~* 'iconic dish'
+         or name ~* 'high tea'
+         or name ~* 'explores'
+         or name ~* 'mainstay'
+         or name ~* 'comfort of'
          or name ~* 'restaurants in chicago'
          or name ~* 'michelin-starred restaurants'
          or name ~* 'delivery and takeout'
