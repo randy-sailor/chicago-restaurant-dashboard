@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const [subscription, events] = await Promise.all([
+    const [subscription, events, profile] = await Promise.all([
       query(`select hot_new, awarded, iconic, essential, frequency from subscriptions where user_id = $1`, [session.id]),
       query(
         `select restaurant_id, action, created_at
@@ -19,13 +19,20 @@ export default async function handler(req, res) {
          order by created_at desc
          limit 200`,
         [session.id]
+      ),
+      query(
+        `select display_name, home_neighborhood, favorite_cuisines, dietary_preferences, dining_occasions, price_preference, bio, updated_at
+         from user_profiles
+         where user_id = $1`,
+        [session.id]
       )
     ]);
 
     sendJson(res, 200, {
       user: session,
       subscription: subscription.rows[0] || null,
-      events: events.rows
+      events: events.rows,
+      profile: profile.rows[0] || null
     });
   } catch (error) {
     handleError(res, error);

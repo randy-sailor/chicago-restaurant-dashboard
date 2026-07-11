@@ -39,6 +39,18 @@ export async function ensureSchema() {
         updated_at timestamptz not null default now()
       );
 
+      create table if not exists user_profiles (
+        user_id uuid primary key references users(id) on delete cascade,
+        display_name text,
+        home_neighborhood text,
+        favorite_cuisines text[] not null default '{}',
+        dietary_preferences text[] not null default '{}',
+        dining_occasions text[] not null default '{}',
+        price_preference text,
+        bio text,
+        updated_at timestamptz not null default now()
+      );
+
       create table if not exists taste_events (
         id bigserial primary key,
         user_id uuid not null references users(id) on delete cascade,
@@ -58,8 +70,21 @@ export async function ensureSchema() {
         emailed_at timestamptz
       );
 
+      create table if not exists recommendation_events (
+        id bigserial primary key,
+        sender_user_id uuid references users(id) on delete set null,
+        sender_email text not null,
+        sender_display_name text,
+        recipient_email text not null,
+        restaurant_id text not null,
+        restaurant_name text not null,
+        message text,
+        created_at timestamptz not null default now()
+      );
+
       create index if not exists taste_events_user_created_idx on taste_events(user_id, created_at desc);
       create index if not exists restaurant_events_email_idx on restaurant_events(emailed_at, occurred_at desc);
+      create index if not exists recommendation_events_sender_created_idx on recommendation_events(sender_user_id, created_at desc);
     `);
   }
   return schemaReady;

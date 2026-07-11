@@ -722,14 +722,18 @@
     }
 
     .account-form,
-    .notification-form {
+    .notification-form,
+    .preference-form {
       display: grid;
       gap: 8px;
       margin-top: 10px;
     }
 
     .account-form input,
-    .notification-form select {
+    .notification-form select,
+    .preference-form input,
+    .preference-form select,
+    .preference-form textarea {
       width: 100%;
       min-height: 36px;
       border: 1px solid var(--line);
@@ -739,8 +743,15 @@
       color: var(--ink);
     }
 
+    .preference-form textarea {
+      min-height: 74px;
+      padding: 10px;
+      resize: vertical;
+    }
+
     .account-form button,
-    .notification-form button {
+    .notification-form button,
+    .preference-form button {
       min-height: 36px;
       border: 1px solid var(--line-strong);
       border-radius: 8px;
@@ -749,13 +760,31 @@
       font-weight: 800;
     }
 
-    .notification-form label {
+    .notification-form label,
+    .preference-form label {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
       color: var(--muted);
       font-size: 12px;
       font-weight: 750;
+    }
+
+    .notification-form label {
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preference-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .preference-grid { grid-template-columns: 1fr; }
     }
 
     .sources {
@@ -1128,7 +1157,47 @@
         <section class="view" id="profileView">
           <section class="panel panel-pad">
             <h1>Your Eating Profile</h1>
-            <p class="deck">The dashboard learns locally from places you save, dismiss, or mark as visited. Your profile never leaves this browser unless you wire it to a backend later.</p>
+            <p class="deck">Set your public sharing identity and the dining preferences that should shape recommendations, saved lists, and restaurant emails.</p>
+            <form id="preferenceForm" class="preference-form">
+              <div class="preference-grid">
+                <label>
+                  Display name
+                  <input name="displayName" type="text" maxlength="80" placeholder="Jane Doe">
+                </label>
+                <label>
+                  Home neighborhood
+                  <input name="homeNeighborhood" type="text" maxlength="80" placeholder="Logan Square">
+                </label>
+                <label>
+                  Favorite cuisines
+                  <input name="favoriteCuisines" type="text" placeholder="Thai, omakase, bakeries">
+                </label>
+                <label>
+                  Dietary preferences
+                  <input name="dietaryPreferences" type="text" placeholder="Vegetarian, shellfish allergy">
+                </label>
+                <label>
+                  Dining occasions
+                  <input name="diningOccasions" type="text" placeholder="Date night, solo lunch, visitors">
+                </label>
+                <label>
+                  Price comfort
+                  <select name="pricePreference">
+                    <option value="">No preference</option>
+                    <option value="$">$</option>
+                    <option value="$$">$$</option>
+                    <option value="$$$">$$$</option>
+                    <option value="$$$$">$$$$</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                Profile note
+                <textarea name="bio" maxlength="500" placeholder="What kinds of meals are you usually looking for?"></textarea>
+              </label>
+              <button type="submit">Save eating profile</button>
+            </form>
+            <p class="hint" id="preferenceStatus"></p>
             <div class="metric-grid" id="profileMetrics"></div>
           </section>
           <div class="section-head">
@@ -2301,6 +2370,7 @@
       sort: "match",
       mapZoom: 10,
       account: null,
+      userProfile: null,
       profile: loadProfile()
     };
 
@@ -2314,6 +2384,26 @@
       document.querySelectorAll(".view").forEach((view) => {
         view.classList.toggle("active", view.id === `${viewName}View`);
       });
+    }
+
+    function normalizeUserProfile(profile = {}) {
+      return {
+        displayName: profile.display_name || profile.displayName || "",
+        homeNeighborhood: profile.home_neighborhood || profile.homeNeighborhood || "",
+        favoriteCuisines: profile.favorite_cuisines || profile.favoriteCuisines || [],
+        dietaryPreferences: profile.dietary_preferences || profile.dietaryPreferences || [],
+        diningOccasions: profile.dining_occasions || profile.diningOccasions || [],
+        pricePreference: profile.price_preference || profile.pricePreference || "",
+        bio: profile.bio || ""
+      };
+    }
+
+    function listToText(value) {
+      return Array.isArray(value) ? value.join(", ") : String(value || "");
+    }
+
+    function profileSenderName() {
+      return state.userProfile?.displayName || state.account?.email || "";
     }
 
     const RESERVATION_LINKS = {
@@ -2382,7 +2472,8 @@
       const form = $("#accountForm");
       const logout = $("#logoutButton");
       if (state.account) {
-        status.textContent = `Signed in as ${state.account.email}`;
+        const name = profileSenderName();
+        status.textContent = `Signed in as ${name}${name !== state.account.email ? ` (${state.account.email})` : ""}`;
         form.hidden = true;
         logout.hidden = false;
       } else {
@@ -2390,6 +2481,23 @@
         form.hidden = false;
         logout.hidden = true;
       }
+    }
+
+    function renderPreferenceForm() {
+      const form = $("#preferenceForm");
+      if (!form) return;
+      const profile = normalizeUserProfile(state.userProfile || {});
+      form.elements.displayName.value = profile.displayName;
+      form.elements.homeNeighborhood.value = profile.homeNeighborhood;
+      form.elements.favoriteCuisines.value = listToText(profile.favoriteCuisines);
+      form.elements.dietaryPreferences.value = listToText(profile.dietaryPreferences);
+      form.elements.diningOccasions.value = listToText(profile.diningOccasions);
+      form.elements.pricePreference.value = profile.pricePreference;
+      form.elements.bio.value = profile.bio;
+      form.querySelector("button").disabled = !state.account;
+      $("#preferenceStatus").textContent = state.account
+        ? "These fields personalize sharing, recommendations, and future profile features."
+        : "Create an account first, then save your eating profile.";
     }
 
     function applySubscription(subscription) {
@@ -2405,12 +2513,15 @@
       try {
         const data = await api("/api/auth/me");
         state.account = data.user;
+        state.userProfile = data.profile ? normalizeUserProfile(data.profile) : null;
         if (data.events?.length) applyRemoteEvents(data.events);
         applySubscription(data.subscription);
       } catch {
         state.account = null;
+        state.userProfile = null;
       }
       renderAccount();
+      renderPreferenceForm();
       render();
     }
 
@@ -2614,6 +2725,7 @@
     function openRecommendDialog(id) {
       const restaurant = RESTAURANTS.find((item) => item.id === id);
       if (!restaurant) return;
+      const sender = profileSenderName();
       openDetail(`
         <div class="detail-hero" style="--tone:${esc(restaurant.tone)}">
           <div class="detail-top">
@@ -2628,21 +2740,17 @@
         <div class="detail-body">
           <section class="detail-section">
             <h3>Tell someone they might want to try it</h3>
-            <p class="hint">This sends a branded recommendation email with a link back to this restaurant on the dashboard.</p>
+            <p class="hint">${state.account ? `This sends as ${esc(sender)} through Chicago Restaurant Dashboard, with replies routed to ${esc(state.account.email)}.` : "Create an account first so recommendations can include your profile name and reply-to email."}</p>
             <form class="recommend-form" id="recommendForm" data-recommend-id="${esc(restaurant.id)}">
               <label>
                 Recipient email
-                <input name="to" type="email" required placeholder="friend@example.com">
-              </label>
-              <label>
-                Your email
-                <input name="senderEmail" type="email" required value="${esc(state.account?.email || "")}" placeholder="you@example.com">
+                <input name="to" type="email" required placeholder="friend@example.com" ${state.account ? "" : "disabled"}>
               </label>
               <label>
                 Optional note
-                <textarea name="message" maxlength="500" placeholder="I thought this looked like your kind of place."></textarea>
+                <textarea name="message" maxlength="500" placeholder="I thought this looked like your kind of place." ${state.account ? "" : "disabled"}></textarea>
               </label>
-              <button type="submit">Send recommendation</button>
+              <button type="submit" ${state.account ? "" : "disabled"}>Send recommendation</button>
             </form>
             <p class="hint" id="recommendStatus" role="status"></p>
           </section>
@@ -2656,6 +2764,10 @@
       if (!restaurant) return;
       const status = $("#recommendStatus");
       const button = form.querySelector("button");
+      if (!state.account) {
+        status.textContent = "Create an account first.";
+        return;
+      }
       status.textContent = "Sending recommendation...";
       button.disabled = true;
       try {
@@ -2663,14 +2775,12 @@
           method: "POST",
           body: JSON.stringify({
             to: form.elements.to.value,
-            senderEmail: form.elements.senderEmail.value,
             message: form.elements.message.value,
             restaurant: restaurantSharePayload(restaurant)
           })
         });
         status.textContent = "Recommendation sent.";
         form.reset();
-        if (state.account?.email) form.elements.senderEmail.value = state.account.email;
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -2955,8 +3065,10 @@
             body: JSON.stringify({ email })
           });
           state.account = data.user;
+          state.userProfile = null;
           $("#emailInput").value = "";
           renderAccount();
+          renderPreferenceForm();
           $("#notificationStatus").textContent = "Profile created. Notification defaults are on.";
         } catch (error) {
           $("#accountStatus").textContent = error.message;
@@ -2966,7 +3078,40 @@
       $("#logoutButton").addEventListener("click", async () => {
         await api("/api/auth/logout", { method: "POST", body: "{}" }).catch(() => null);
         state.account = null;
+        state.userProfile = null;
         renderAccount();
+        renderPreferenceForm();
+      });
+
+      $("#preferenceForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        if (!state.account) {
+          $("#preferenceStatus").textContent = "Create an account first.";
+          return;
+        }
+        const payload = {
+          displayName: form.elements.displayName.value,
+          homeNeighborhood: form.elements.homeNeighborhood.value,
+          favoriteCuisines: form.elements.favoriteCuisines.value,
+          dietaryPreferences: form.elements.dietaryPreferences.value,
+          diningOccasions: form.elements.diningOccasions.value,
+          pricePreference: form.elements.pricePreference.value,
+          bio: form.elements.bio.value
+        };
+        $("#preferenceStatus").textContent = "Saving eating profile...";
+        try {
+          const data = await api("/api/profile", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          state.userProfile = normalizeUserProfile(data.profile);
+          renderAccount();
+          renderPreferenceForm();
+          $("#preferenceStatus").textContent = "Eating profile saved.";
+        } catch (error) {
+          $("#preferenceStatus").textContent = error.message;
+        }
       });
 
       $("#notificationForm").addEventListener("submit", async (event) => {
@@ -3107,6 +3252,7 @@
     setupFilters();
     bindEvents();
     renderAccount();
+    renderPreferenceForm();
     loadAccount();
     render();
     const initialRestaurant = new URLSearchParams(window.location.search).get("restaurant");

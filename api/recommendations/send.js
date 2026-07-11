@@ -1,6 +1,8 @@
 import { sendEmail } from "../_lib/email.js";
 import { restaurantRecommendationEmail } from "../_lib/emailTemplates.js";
 import { handleError, readJson, sendJson } from "../_lib/http.js";
+import { query } from "../_lib/db.js";
+import { requireSession } from "../_lib/session.js";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -41,17 +43,23 @@ export default async function handler(req, res) {
       throw Object.assign(new Error("Use POST."), { statusCode: 405 });
     }
 
+    const session = requireSession(req);
     const body = await readJson(req);
     const to = normalizeEmail(body.to);
-    const senderEmail = normalizeEmail(body.senderEmail);
     assertEmail(to, "recipient");
-    assertEmail(senderEmail, "sender");
+
+    const profileResult = await query(
+      `select display_name from user_profiles where user_id = $1`,
+      [session.id]
+    );
+    const displayName = String(profileResult.rows[0]?.display_name || "").trim();
+    const senderName = displayName || session.email;
 
     const restaurant = cleanRestaurant(body.restaurant);
     const message = String(body.message || "").trim().slice(0, 500);
     const email = restaurantRecommendationEmail({
       restaurant,
-      senderEmail,
+      senderEmail: senderName,
       message,
       restaurantUrl: dashboardUrlFor(restaurant.id)
     });
@@ -60,8 +68,18 @@ export default async function handler(req, res) {
       to,
       subject: email.subject,
       text: email.text,
-      html: email.html
+      html: email.html,
+      replyTo: session.email
     });
+
+    await query(
+      `insert into recommendation_events (
+         sender_user_id, sender_email, sender_display_name, recipient_email,
+         restaurant_id, restaurant_name, message
+       )
+       values ($1, $2, $3, $4, $5, $6, $7)`,
+      [session.id, session.email, displayName || null, to, restaurant.id, restaurant.name, message || null]
+    );
 
     sendJson(res, 200, { sent: true });
   } catch (error) {
