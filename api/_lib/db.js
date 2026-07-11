@@ -82,9 +82,48 @@ export async function ensureSchema() {
         created_at timestamptz not null default now()
       );
 
+      create table if not exists source_runs (
+        id bigserial primary key,
+        started_at timestamptz not null default now(),
+        finished_at timestamptz,
+        status text not null default 'running',
+        sources_checked integer not null default 0,
+        items_captured integer not null default 0,
+        restaurants_captured integer not null default 0,
+        error text
+      );
+
+      create table if not exists source_items (
+        id bigserial primary key,
+        source_id text not null,
+        source_title text not null,
+        item_title text not null,
+        item_url text not null unique,
+        summary text,
+        published_at timestamptz,
+        captured_at timestamptz not null default now(),
+        raw jsonb not null default '{}'::jsonb
+      );
+
+      create table if not exists ingested_restaurants (
+        id text primary key,
+        name text not null,
+        source_item_url text references source_items(item_url) on delete set null,
+        source_title text,
+        neighborhood text,
+        cuisine text[] not null default '{}',
+        signals text[] not null default '{}',
+        confidence numeric not null default 0,
+        first_seen_at timestamptz not null default now(),
+        last_seen_at timestamptz not null default now(),
+        raw jsonb not null default '{}'::jsonb
+      );
+
       create index if not exists taste_events_user_created_idx on taste_events(user_id, created_at desc);
       create index if not exists restaurant_events_email_idx on restaurant_events(emailed_at, occurred_at desc);
       create index if not exists recommendation_events_sender_created_idx on recommendation_events(sender_user_id, created_at desc);
+      create index if not exists source_items_captured_idx on source_items(captured_at desc);
+      create index if not exists ingested_restaurants_last_seen_idx on ingested_restaurants(last_seen_at desc);
     `);
   }
   return schemaReady;

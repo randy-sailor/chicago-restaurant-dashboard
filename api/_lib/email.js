@@ -24,7 +24,18 @@ export async function sendEmail({ to, subject, html, text, replyTo }) {
 
   if (!response.ok) {
     const detail = await response.text();
-    throw Object.assign(new Error(`Email provider failed: ${detail}`), { statusCode: 502 });
+    let providerMessage = detail;
+    try {
+      const parsed = JSON.parse(detail);
+      providerMessage = parsed.message || parsed.error || detail;
+    } catch {
+      providerMessage = detail;
+    }
+    const isResendTestingMode = response.status === 403 && /verify a domain|testing emails/i.test(providerMessage);
+    const message = isResendTestingMode
+      ? "Email sending is still in Resend testing mode. Verify your sending domain in Resend, then set EMAIL_FROM to an address on that domain."
+      : `Email provider failed: ${providerMessage}`;
+    throw Object.assign(new Error(message), { statusCode: isResendTestingMode ? 403 : 502 });
   }
 
   return response.json();

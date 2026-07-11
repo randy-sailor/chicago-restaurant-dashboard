@@ -10,7 +10,10 @@ Offline-capable prototype for scouting Chicago restaurants from public sources.
 - Adds lane browsing for Hot New, Essential/Popular, Awarded, Iconic, and Personal Fit restaurants.
 - Opens restaurant detail panels from cards, Details buttons, and map pins.
 - Shows menu cues, source provenance, map links, and reservation/official links where available.
-- Stores taste signals locally in the browser through Save, Visited, and Pass actions.
+- Stores taste signals locally and syncs them to Supabase for signed-in users.
+- Supports account profiles with display name, neighborhood, cuisines, dietary preferences, dining occasions, price comfort, and a profile note.
+- Sends branded profile, digest, and restaurant recommendation emails through Resend.
+- Captures scheduled public-source ingestion runs into Supabase for source auditing and future dataset review.
 - Tracks public-source provenance for each restaurant card.
 
 ## Current seed sources
@@ -28,14 +31,16 @@ Offline-capable prototype for scouting Chicago restaurants from public sources.
 - Axios Chicago Fulton Market openings, published April 14, 2026: <https://www.axios.com/local/chicago/2026/04/14/fulton-market-mendocino-prasino-do-rite-pizza-lobo-labriola>
 - OpenStreetMap raster tiles for the map viewport: <https://tile.openstreetmap.org/>
 
-## Next connector layer
+## Source ingestion layer
 
-The seed data lives in `RESTAURANTS` and `SOURCES` inside `index.html`. A production version should replace or refresh that embedded data from:
+The seed data still lives in `RESTAURANTS` and `SOURCES` inside `index.html`, but production now also has a scheduled ingestion layer:
 
-- Editorial feeds: Eater Chicago, The Infatuation, Time Out Chicago, Chicago Magazine.
-- Primary sources: restaurant official sites, booking pages, menu PDFs, Instagram announcements.
-- Public civic records: Chicago business licenses and food inspections for address/status validation.
-- User profile storage: localStorage now, later a small backend table keyed by user.
+- `GET/POST /api/ingestion/run`: protected by Vercel Cron or `Authorization: Bearer $CRON_SECRET`.
+- `GET /api/ingestion/status`: latest ingestion runs, captured source items, and restaurant candidates.
+- Tables: `source_runs`, `source_items`, `ingested_restaurants`, and `restaurant_events`.
+- Current source refresh targets: Eater Chicago RSS, Time Out Chicago restaurants, Chicago Reader Food & Drink, and MICHELIN Guide Chicago.
+
+The next editorial workflow is to review `ingested_restaurants` and promote confirmed entries into the curated dashboard dataset.
 
 ## Run locally
 
@@ -57,16 +62,22 @@ The app now includes Vercel-compatible API routes for:
 - Notification preferences: `GET/POST /api/subscriptions`
 - Restaurant lifecycle event capture: `POST /api/restaurants/capture-event`
 - Scheduled notification digest: `GET /api/notifications/digest`
+- Account profile save/load: `GET/POST /api/profile`
+- Restaurant recommendation emails: `POST /api/recommendations/send`
+- Scheduled source ingestion: `GET/POST /api/ingestion/run`
+- Source ingestion status: `GET /api/ingestion/status`
 
 Required environment variables:
 
 - `DATABASE_URL`: Postgres connection string, for example Neon, Supabase, or Vercel Postgres.
 - `APP_SECRET`: long random string for signed session cookies.
 - `RESEND_API_KEY`: Resend API key for production email delivery.
-- `EMAIL_FROM`: verified sender address, for example `Chicago Restaurant Dashboard <updates@yourdomain.com>`.
+- `EMAIL_FROM`: verified sender address, for example `Chicago Restaurant Dashboard <updates@chicagorestaurantdashboard.com>`.
 - `CRON_SECRET`: bearer token for protected event ingestion.
 
-`vercel.json` includes a daily cron for `/api/notifications/digest`.
+`vercel.json` includes daily crons for `/api/ingestion/run` and `/api/notifications/digest`.
+
+Resend note: while Resend is in testing mode, it only sends to the account owner's email. To send restaurant recommendations to arbitrary recipients, verify a sending domain in Resend and set `EMAIL_FROM` to an address on that domain.
 
 ## Deployment Shape
 
@@ -74,4 +85,4 @@ Required environment variables:
 2. Create a Resend account/domain and set `RESEND_API_KEY` plus `EMAIL_FROM`.
 3. Set `APP_SECRET` and `CRON_SECRET`.
 4. Deploy to Vercel. The static dashboard is served from `index.html`; API routes live under `/api`.
-5. Wire future source ingestion to call `/api/restaurants/capture-event` when a restaurant is announced, awarded, or added to the dataset.
+5. Verify the sending domain in Resend before public recommendation sharing.

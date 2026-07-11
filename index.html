@@ -1212,7 +1212,13 @@
         <section class="view" id="sourcesView">
           <section class="panel panel-pad">
             <h1>Source Register</h1>
-            <p class="deck">Each restaurant card carries public-source provenance. This build is connected to live map tiles and verified public source URLs; the restaurant records are refreshed from reviewed editorial pages and official links, with a backend scraper/API refresh job as the next production step.</p>
+            <p class="deck">Each restaurant card carries public-source provenance. The backend now runs a scheduled public-source ingestion job that captures restaurant articles, candidate restaurant names, and notification events for review and digesting.</p>
+          </section>
+          <section class="panel panel-pad">
+            <h2>Ingestion Status</h2>
+            <p class="hint" id="ingestionSummary">Loading source refresh status...</p>
+            <div class="timeline" id="ingestionRuns"></div>
+            <div class="timeline" id="ingestionItems"></div>
           </section>
           <div class="section-head">
             <div>
@@ -2371,6 +2377,7 @@
       mapZoom: 10,
       account: null,
       userProfile: null,
+      ingestionStatus: null,
       profile: loadProfile()
     };
 
@@ -3020,6 +3027,26 @@
           ${source.url === "#" ? `<span class="hint">Official links are attached per restaurant.</span>` : `<a href="${source.url}" target="_blank" rel="noreferrer">Open source</a>`}
         </article>
       `).join("");
+      if (!state.ingestionStatus) return;
+      const latest = state.ingestionStatus.runs?.[0];
+      $("#ingestionSummary").textContent = latest
+        ? `Latest run ${latest.status}: ${latest.items_captured} new source items and ${latest.restaurants_captured} restaurant candidates captured.`
+        : "No ingestion runs have completed yet.";
+      $("#ingestionRuns").innerHTML = (state.ingestionStatus.runs || []).map((run) => `
+        <div class="timeline-item"><strong>${esc(run.status)}</strong><br>${new Date(run.started_at).toLocaleString()} · ${run.sources_checked} sources · ${run.error ? esc(run.error) : "No reported errors"}</div>
+      `).join("");
+      $("#ingestionItems").innerHTML = (state.ingestionStatus.items || []).slice(0, 5).map((item) => `
+        <div class="timeline-item"><strong>${esc(item.source_title)}</strong><br><a href="${esc(item.item_url)}" target="_blank" rel="noreferrer">${esc(item.item_title)}</a></div>
+      `).join("");
+    }
+
+    async function loadIngestionStatus() {
+      try {
+        state.ingestionStatus = await api("/api/ingestion/status");
+        renderSources();
+      } catch (error) {
+        $("#ingestionSummary").textContent = "Ingestion status is not available yet.";
+      }
     }
 
     function toggleArrayValue(key, id) {
@@ -3254,6 +3281,7 @@
     renderAccount();
     renderPreferenceForm();
     loadAccount();
+    loadIngestionStatus();
     render();
     const initialRestaurant = new URLSearchParams(window.location.search).get("restaurant");
     if (initialRestaurant) openRestaurantDetail(initialRestaurant);
