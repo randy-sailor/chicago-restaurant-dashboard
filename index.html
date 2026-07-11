@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A public-source dashboard for scouting Chicago restaurants: hot openings, award momentum, iconic stops, and personal taste learning.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23171615'/%3E%3Ctext x='16' y='23' font-family='Arial, sans-serif' font-size='19' font-weight='800' fill='%23fffdf8' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
   <title>Chicago Restaurant Dashboard</title>
   <style>
     :root {
@@ -1207,7 +1209,7 @@
           <div class="hero">
             <section class="panel panel-pad">
               <h1>Where the next great Chicago meal might happen.</h1>
-              <p class="deck">A public-source restaurant dashboard for hot openings, award momentum, menu clues, and personal taste learning. The seed data is current to July 9, 2026 and can be expanded with live connectors for editorial maps, official menus, booking pages, and city records.</p>
+              <p class="deck">A public-source restaurant dashboard for hot openings, award momentum, menu clues, and personal taste learning. The seed data is current to <span id="dataCurrency">its latest capture</span> and can be expanded with live connectors for editorial maps, official menus, booking pages, and city records.</p>
               <div class="metric-grid" id="metricGrid"></div>
             </section>
 
@@ -2601,6 +2603,11 @@
         verifyForm.hidden = true;
         logout.hidden = true;
       }
+      // Notification preferences only apply to signed-in accounts; disable
+      // the form instead of rejecting at submit time.
+      $("#notificationForm").querySelectorAll("input, select, button").forEach((element) => {
+        element.disabled = !state.account;
+      });
     }
 
     function renderPreferenceForm() {
@@ -2737,12 +2744,11 @@
       const avgHeat = rows.length ? Math.round(rows.reduce((sum, r) => sum + r.heat, 0) / rows.length) : 0;
       const neighborhoods = uniq(rows.map((r) => r.neighborhood)).length;
       const experiences = rows.filter((r) => r.occasions.includes("Experience")).length;
-      const laneCount = state.lane === "all" ? uniq(rows.flatMap((r) => r.lanes.filter((lane) => lane !== "personal"))).length : rows.filter((r) => r.lanes.includes(state.lane)).length;
       $("#metricGrid").innerHTML = [
         ["matches", "Matches", rows.length, "Filtered places"],
         ["heat", "Avg heat", avgHeat, "Popularity + novelty"],
         ["areas", "Areas", neighborhoods, "Neighborhoods"],
-        ["experiences", "Experiences", experiences, state.lane === "all" ? `${laneCount} lanes active` : laneLabel(state.lane)]
+        ["experiences", "Experiences", experiences, "Experience-led places"]
       ].map(([action, label, value, note]) => `
         <button class="metric" type="button" data-metric-action="${action}" aria-label="${label}: ${value}. ${note}">
           <div class="metric-label">${label}</div>
@@ -2974,31 +2980,14 @@
       }
     }
 
-    function renderMap(rows) {
-      const map = $("#mapPanel");
-      let tileLayer = map.querySelector(".map-tiles");
-      if (!tileLayer) {
-        tileLayer = document.createElement("div");
-        tileLayer.className = "map-tiles";
-        map.prepend(tileLayer);
-        const controls = document.createElement("div");
-        controls.className = "map-controls";
-        controls.innerHTML = `<button type="button" data-map-zoom="in" aria-label="Zoom map in">+</button><button type="button" data-map-zoom="out" aria-label="Zoom map out">-</button>`;
-        map.appendChild(controls);
-        const note = document.createElement("div");
-        note.className = "map-offline-note";
-        note.textContent = "Map tiles: OpenStreetMap. Pins are local source-backed records.";
-        map.appendChild(note);
-      }
-      tileLayer.innerHTML = "";
-      map.querySelectorAll(".pin").forEach((pin) => pin.remove());
+    const mapTileState = { zoom: null, width: 0, height: 0 };
 
+    function mapViewport(map) {
       const rect = map.getBoundingClientRect();
       const width = Math.max(320, rect.width || map.clientWidth || 540);
       const height = Math.max(360, rect.height || map.clientHeight || 430);
       const zoom = state.mapZoom;
       const tileSize = 256;
-      const center = { lat: 41.885, lng: -87.635 };
       const scale = tileSize * Math.pow(2, zoom);
       const worldFromLatLng = (lat, lng) => {
         const sin = Math.sin((lat * Math.PI) / 180);
@@ -3007,13 +2996,18 @@
           y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * scale
         };
       };
-      const centerWorld = worldFromLatLng(center.lat, center.lng);
+      const centerWorld = worldFromLatLng(41.885, -87.635);
       const topLeft = { x: centerWorld.x - width / 2, y: centerWorld.y - height / 2 };
+      return { width, height, zoom, tileSize, worldFromLatLng, topLeft };
+    }
+
+    function renderMapTiles(map, tileLayer, viewport) {
+      const { width, height, zoom, tileSize, topLeft } = viewport;
+      tileLayer.innerHTML = "";
       const minTileX = Math.floor(topLeft.x / tileSize);
       const maxTileX = Math.floor((topLeft.x + width) / tileSize);
       const minTileY = Math.floor(topLeft.y / tileSize);
       const maxTileY = Math.floor((topLeft.y + height) / tileSize);
-
       for (let x = minTileX; x <= maxTileX; x += 1) {
         for (let y = minTileY; y <= maxTileY; y += 1) {
           const img = document.createElement("img");
@@ -3027,7 +3021,38 @@
           tileLayer.appendChild(img);
         }
       }
+      mapTileState.zoom = zoom;
+      mapTileState.width = width;
+      mapTileState.height = height;
+    }
 
+    function renderMap(rows) {
+      const map = $("#mapPanel");
+      let tileLayer = map.querySelector(".map-tiles");
+      if (!tileLayer) {
+        tileLayer = document.createElement("div");
+        tileLayer.className = "map-tiles";
+        map.prepend(tileLayer);
+        const controls = document.createElement("div");
+        controls.className = "map-controls";
+        controls.innerHTML = `<button type="button" data-map-zoom="in" aria-label="Zoom map in">+</button><button type="button" data-map-zoom="out" aria-label="Zoom map out">-</button>`;
+        map.appendChild(controls);
+        const note = document.createElement("div");
+        note.className = "map-offline-note";
+        note.innerHTML = `Map tiles © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors. Pins are local source-backed records.`;
+        map.appendChild(note);
+      }
+      map.querySelectorAll(".pin").forEach((pin) => pin.remove());
+
+      const viewport = mapViewport(map);
+      // Rebuild the tile layer only when zoom or panel size changes; filter
+      // and search re-renders reuse it and just repaint the pins.
+      const tilesStale = mapTileState.zoom !== viewport.zoom
+        || mapTileState.width !== viewport.width
+        || mapTileState.height !== viewport.height;
+      if (tilesStale) renderMapTiles(map, tileLayer, viewport);
+
+      const { width, height, worldFromLatLng, topLeft } = viewport;
       rows.forEach((restaurant) => {
         const point = worldFromLatLng(restaurant.lat, restaurant.lng);
         const x = point.x - topLeft.x;
@@ -3205,6 +3230,11 @@
 
     function render() {
       const rows = filteredRestaurants();
+      const sortSelect = $("#sortSelect");
+      sortSelect.disabled = state.lane === "personal";
+      sortSelect.title = sortSelect.disabled
+        ? "The Personal Fit lane is always ordered by your match score."
+        : "";
       renderMetrics(rows);
       renderMap(rows);
       renderCards(rows);
@@ -3322,9 +3352,11 @@
         }
       });
 
+      let searchDebounce;
       $("#searchInput").addEventListener("input", (event) => {
         state.search = event.target.value;
-        render();
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(render, 150);
       });
       $("#neighborhoodSelect").addEventListener("change", (event) => {
         state.neighborhood = event.target.value;
@@ -3467,19 +3499,60 @@
         }
       });
 
-      $("#refreshScores").addEventListener("click", render);
+      $("#refreshScores").addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          await Promise.all([loadAccount(), loadIngestionStatus()]);
+        } finally {
+          button.disabled = false;
+        }
+      });
       $("#homeButton").addEventListener("click", () => switchView("discover"));
+    }
+
+    function renderDataCurrency() {
+      const latest = RESTAURANTS.map((r) => r.opened).sort().at(-1);
+      if (!latest) return;
+      const date = new Date(`${latest}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return;
+      $("#dataCurrency").textContent = date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function openDeepLink(id) {
+      if (RESTAURANTS.some((restaurant) => restaurant.id === id)) {
+        openRestaurantDetail(id);
+        return;
+      }
+      openDetail(`
+        <div class="detail-hero" style="--tone:var(--blue)">
+          <div class="detail-top">
+            <div>
+              <span class="badge">Link</span>
+              <h2 id="detailTitle">Restaurant not found</h2>
+              <div>This link points at a restaurant that is not in the current dataset.</div>
+            </div>
+            <button class="detail-close" type="button" data-detail-close aria-label="Close details">×</button>
+          </div>
+        </div>
+        <div class="detail-body">
+          <section class="detail-section">
+            <p class="hint">It may have been renamed or removed from the seed data. Browse the lanes or search to find it.</p>
+          </section>
+        </div>
+      `);
     }
 
     setupFilters();
     bindEvents();
     renderAccount();
     renderPreferenceForm();
+    renderDataCurrency();
     loadAccount();
     loadIngestionStatus();
     render();
     const initialRestaurant = new URLSearchParams(window.location.search).get("restaurant");
-    if (initialRestaurant) openRestaurantDetail(initialRestaurant);
+    if (initialRestaurant) openDeepLink(initialRestaurant);
   </script>
 </body>
 </html>
