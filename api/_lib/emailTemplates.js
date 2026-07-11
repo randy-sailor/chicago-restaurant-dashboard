@@ -1,4 +1,4 @@
-const SITE_URL = process.env.SITE_URL || "https://chicago-restaurant-dashboard.vercel.app";
+const SITE_URL = process.env.SITE_URL || "https://chicagorestaurantdashboard.com";
 
 const palette = {
   bg: "#f5f2ec",
@@ -57,7 +57,7 @@ function itemCard(item) {
   `;
 }
 
-function shell({ preview, eyebrow, title, intro, children, footerNote }) {
+function shell({ preview, eyebrow, title, intro, children, footerNote, ctaLabel = "Open dashboard", ctaUrl = SITE_URL }) {
   return `<!doctype html>
 <html>
   <head>
@@ -108,7 +108,7 @@ function shell({ preview, eyebrow, title, intro, children, footerNote }) {
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="border-radius:6px;background:${palette.tomato};">
-                      <a href="${esc(SITE_URL)}" style="display:inline-block;padding:12px 15px;font:800 14px/1 Arial, sans-serif;color:#ffffff;text-decoration:none;">Open dashboard</a>
+                      <a href="${esc(ctaUrl)}" style="display:inline-block;padding:12px 15px;font:800 14px/1 Arial, sans-serif;color:#ffffff;text-decoration:none;">${esc(ctaLabel)}</a>
                     </td>
                   </tr>
                 </table>
@@ -175,6 +175,64 @@ export function restaurantDigestEmail(events) {
       intro: "These updates matched your notification preferences across new openings, awards, and captured places.",
       children: items.map(itemCard).join(""),
       footerNote: "Notification preferences can be changed from your dashboard profile."
+    })
+  };
+}
+
+export function restaurantRecommendationEmail({ restaurant, senderEmail, message, restaurantUrl }) {
+  const menu = Array.isArray(restaurant.menu) ? restaurant.menu.slice(0, 4) : [];
+  const sender = senderEmail || "Someone";
+  const note = String(message || "").trim();
+  const card = `
+    <tr>
+      <td style="padding:0 0 12px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${palette.line};border-radius:8px;background:${palette.surface};">
+          <tr>
+            <td style="padding:16px 16px 14px 16px;">
+              <div style="font:700 11px/1.2 Arial, sans-serif;text-transform:uppercase;color:${palette.tomato};letter-spacing:.08em;">Recommended restaurant</div>
+              <div style="font:800 24px/1.18 Arial, sans-serif;color:${palette.ink};margin-top:5px;">${esc(restaurant.name)}</div>
+              <div style="font:14px/1.45 Arial, sans-serif;color:${palette.muted};margin-top:7px;">${esc(restaurant.neighborhood)} · ${esc(restaurant.format)}</div>
+              <div style="font:14px/1.45 Arial, sans-serif;color:${palette.muted};margin-top:3px;">${esc(restaurant.address || "Chicago")}</div>
+              ${restaurant.note ? `<p style="margin:12px 0 0 0;font:15px/1.5 Arial, sans-serif;color:${palette.ink};">${esc(restaurant.note)}</p>` : ""}
+              ${menu.length ? `<ul style="margin:12px 0 0 18px;padding:0;font:13px/1.5 Arial, sans-serif;color:${palette.muted};">${menu.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : ""}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `;
+  const senderNote = note ? `
+    <tr>
+      <td style="padding:0 0 12px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${palette.line};border-radius:8px;background:${palette.surface2};">
+          <tr>
+            <td style="padding:16px;font:15px/1.5 Arial, sans-serif;color:${palette.ink};">
+              <strong style="display:block;margin-bottom:6px;">A note from ${esc(sender)}</strong>
+              ${esc(note)}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  ` : "";
+
+  return {
+    subject: `${sender} thinks you should try ${restaurant.name}`,
+    text: [
+      `${sender} thinks you should try ${restaurant.name}.`,
+      restaurant.note || "",
+      note ? `Note from ${sender}: ${note}` : "",
+      `View it on Chicago Restaurant Dashboard: ${restaurantUrl}`
+    ].filter(Boolean).join("\n\n"),
+    html: shell({
+      preview: `${sender} recommended ${restaurant.name} on Chicago Restaurant Dashboard.`,
+      eyebrow: "Restaurant recommendation",
+      title: `${restaurant.name} is worth a look`,
+      intro: `${sender} sent you a Chicago dining recommendation with menu and source context from the dashboard.`,
+      children: `${senderNote}${card}`,
+      footerNote: "This recommendation was sent from Chicago Restaurant Dashboard.",
+      ctaLabel: "View restaurant",
+      ctaUrl: restaurantUrl
     })
   };
 }

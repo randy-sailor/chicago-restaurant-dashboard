@@ -651,7 +651,7 @@
 
     .restaurant-actions {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       border-top: 1px solid var(--line);
     }
 
@@ -919,6 +919,44 @@
 
     .detail-source-list a {
       color: var(--blue);
+      font-weight: 800;
+    }
+
+    .recommend-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .recommend-form label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .recommend-form input,
+    .recommend-form textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: var(--surface);
+      color: var(--ink);
+      font: 14px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .recommend-form textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .recommend-form button {
+      min-height: 42px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--surface);
       font-weight: 800;
     }
 
@@ -2560,6 +2598,85 @@
       `);
     }
 
+    function restaurantSharePayload(restaurant) {
+      return {
+        id: restaurant.id,
+        name: restaurant.name,
+        neighborhood: restaurant.neighborhood,
+        format: restaurant.format,
+        address: restaurant.address,
+        note: restaurant.note,
+        menu: restaurant.menu
+      };
+    }
+
+    function openRecommendDialog(id) {
+      const restaurant = RESTAURANTS.find((item) => item.id === id);
+      if (!restaurant) return;
+      openDetail(`
+        <div class="detail-hero" style="--tone:${esc(restaurant.tone)}">
+          <div class="detail-top">
+            <div>
+              <span class="badge">Send recommendation</span>
+              <h2 id="detailTitle">${esc(restaurant.name)}</h2>
+              <div>${esc(restaurant.neighborhood)} · ${esc(restaurant.format)}</div>
+            </div>
+            <button class="detail-close" type="button" data-detail-close aria-label="Close details">×</button>
+          </div>
+        </div>
+        <div class="detail-body">
+          <section class="detail-section">
+            <h3>Tell someone they might want to try it</h3>
+            <p class="hint">This sends a branded recommendation email with a link back to this restaurant on the dashboard.</p>
+            <form class="recommend-form" id="recommendForm" data-recommend-id="${esc(restaurant.id)}">
+              <label>
+                Recipient email
+                <input name="to" type="email" required placeholder="friend@example.com">
+              </label>
+              <label>
+                Your email
+                <input name="senderEmail" type="email" required value="${esc(state.account?.email || "")}" placeholder="you@example.com">
+              </label>
+              <label>
+                Optional note
+                <textarea name="message" maxlength="500" placeholder="I thought this looked like your kind of place."></textarea>
+              </label>
+              <button type="submit">Send recommendation</button>
+            </form>
+            <p class="hint" id="recommendStatus" role="status"></p>
+          </section>
+        </div>
+      `);
+    }
+
+    async function sendRecommendation(form) {
+      const id = form.dataset.recommendId;
+      const restaurant = RESTAURANTS.find((item) => item.id === id);
+      if (!restaurant) return;
+      const status = $("#recommendStatus");
+      const button = form.querySelector("button");
+      status.textContent = "Sending recommendation...";
+      button.disabled = true;
+      try {
+        await api("/api/recommendations/send", {
+          method: "POST",
+          body: JSON.stringify({
+            to: form.elements.to.value,
+            senderEmail: form.elements.senderEmail.value,
+            message: form.elements.message.value,
+            restaurant: restaurantSharePayload(restaurant)
+          })
+        });
+        status.textContent = "Recommendation sent.";
+        form.reset();
+        if (state.account?.email) form.elements.senderEmail.value = state.account.email;
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
     function openAreaBreakdown(rows) {
       const grouped = uniq(rows.map((r) => r.neighborhood)).map((area) => {
         const areaRows = rows.filter((r) => r.neighborhood === area);
@@ -2723,6 +2840,7 @@
             </div>
             <div class="restaurant-actions">
               <button data-restaurant-open="${restaurant.id}">Details</button>
+              <button data-recommend-restaurant="${restaurant.id}">Recommend</button>
               <button class="${saved ? "active" : ""}" data-action="saved" data-id="${restaurant.id}">${saved ? "Saved" : "Save"}</button>
               <button class="${visited ? "active" : ""}" data-action="visited" data-id="${restaurant.id}">${visited ? "Visited" : "Visited?"}</button>
               <button class="${passed ? "active" : ""}" data-action="passed" data-id="${restaurant.id}">${passed ? "Passed" : "Pass"}</button>
@@ -2916,6 +3034,12 @@
           return;
         }
 
+        const recommend = event.target.closest("[data-recommend-restaurant]");
+        if (recommend) {
+          openRecommendDialog(recommend.dataset.recommendRestaurant);
+          return;
+        }
+
         const restaurantOpen = event.target.closest("[data-restaurant-open]");
         if (restaurantOpen) {
           openRestaurantDetail(restaurantOpen.dataset.restaurantOpen);
@@ -2956,6 +3080,14 @@
         }
       });
 
+      document.addEventListener("submit", (event) => {
+        const recommendForm = event.target.closest("#recommendForm");
+        if (recommendForm) {
+          event.preventDefault();
+          sendRecommendation(recommendForm);
+        }
+      });
+
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && $("#detailOverlay").classList.contains("active")) {
           closeDetail();
@@ -2976,6 +3108,8 @@
     renderAccount();
     loadAccount();
     render();
+    const initialRestaurant = new URLSearchParams(window.location.search).get("restaurant");
+    if (initialRestaurant) openRestaurantDetail(initialRestaurant);
   </script>
 </body>
 </html>
