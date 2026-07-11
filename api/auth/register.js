@@ -3,6 +3,7 @@ import { query } from "../_lib/db.js";
 import { createSessionCookie } from "../_lib/session.js";
 import { assertMethod, handleError, readJson, sendJson } from "../_lib/http.js";
 import { sendEmail } from "../_lib/email.js";
+import { profileReadyEmail } from "../_lib/emailTemplates.js";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -37,11 +38,12 @@ export default async function handler(req, res) {
 
     let emailStatus = { sent: true };
     try {
+      const email = profileReadyEmail();
       await sendEmail({
         to: user.email,
-        subject: "Your Chicago Restaurant Dashboard profile is ready",
-        text: "Your profile is ready. You can now save restaurants and receive update notifications.",
-        html: "<p>Your Chicago Restaurant Dashboard profile is ready.</p><p>You can now save restaurants and receive update notifications.</p>"
+        subject: email.subject,
+        text: email.text,
+        html: email.html
       });
     } catch (emailError) {
       emailStatus = { sent: false, error: "Profile created, but the confirmation email could not be sent yet." };

@@ -1,5 +1,6 @@
 import { query } from "../_lib/db.js";
 import { sendEmail } from "../_lib/email.js";
+import { restaurantDigestEmail } from "../_lib/emailTemplates.js";
 import { handleError, sendJson } from "../_lib/http.js";
 
 function requireCronSecret(req) {
@@ -47,16 +48,13 @@ export default async function handler(req, res) {
       const matching = events.filter((event) => eventMatchesSubscription(event, user));
       if (matching.length === 0) continue;
 
-      const items = matching.map((event) => {
-        const href = event.source_url || "#";
-        return `<li><strong>${event.restaurant_name}</strong> was ${event.event_type}. ${event.source_title ? `<a href="${href}">${event.source_title}</a>` : ""}</li>`;
-      }).join("");
+      const email = restaurantDigestEmail(matching);
 
       await sendEmail({
         to: user.email,
-        subject: "Chicago restaurant updates",
-        text: matching.map((event) => `${event.restaurant_name} was ${event.event_type}: ${event.source_url || ""}`).join("\n"),
-        html: `<p>New restaurant updates matching your preferences:</p><ul>${items}</ul>`
+        subject: email.subject,
+        text: email.text,
+        html: email.html
       });
       sent += 1;
     }
