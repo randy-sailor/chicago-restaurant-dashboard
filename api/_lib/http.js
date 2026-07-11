@@ -19,6 +19,12 @@ export async function readJson(req) {
 
 export function handleError(res, error) {
   const statusCode = error.statusCode || 500;
+  console.error("[api:error]", {
+    message: error.message,
+    statusCode,
+    code: error.code,
+    stack: error.stack
+  });
   sendJson(res, statusCode, {
     error: statusCode === 500 ? "Internal server error." : error.message
   });

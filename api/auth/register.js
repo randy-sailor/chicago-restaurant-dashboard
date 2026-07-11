@@ -35,14 +35,24 @@ export default async function handler(req, res) {
       [user.id]
     );
 
-    await sendEmail({
-      to: user.email,
-      subject: "Your Chicago Restaurant Dashboard profile is ready",
-      text: "Your profile is ready. You can now save restaurants and receive update notifications.",
-      html: "<p>Your Chicago Restaurant Dashboard profile is ready.</p><p>You can now save restaurants and receive update notifications.</p>"
-    });
+    let emailStatus = { sent: true };
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Your Chicago Restaurant Dashboard profile is ready",
+        text: "Your profile is ready. You can now save restaurants and receive update notifications.",
+        html: "<p>Your Chicago Restaurant Dashboard profile is ready.</p><p>You can now save restaurants and receive update notifications.</p>"
+      });
+    } catch (emailError) {
+      emailStatus = { sent: false, error: "Profile created, but the confirmation email could not be sent yet." };
+      console.error("[auth/register:email]", {
+        message: emailError.message,
+        statusCode: emailError.statusCode,
+        code: emailError.code
+      });
+    }
 
-    sendJson(res, 200, { user }, { "Set-Cookie": createSessionCookie(user) });
+    sendJson(res, 200, { user, email: emailStatus }, { "Set-Cookie": createSessionCookie(user) });
   } catch (error) {
     handleError(res, error);
   }
