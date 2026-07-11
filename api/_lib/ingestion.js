@@ -33,6 +33,22 @@ const RESTAURANT_HINTS = [
   "sandwich", "michelin", "james beard", "brunch", "cocktail"
 ];
 
+const GENERIC_LIST_PATTERNS = [
+  /^\d+\s+/i,
+  /^the\s+best\s+/i,
+  /^best\s+/i,
+  /^every\s+/i,
+  /^all-time\s+/i,
+  /^where\s+to\s+/i,
+  /^guide\s+to\s+/i,
+  /restaurant openings/i,
+  /anticipated restaurant openings/i,
+  /michelin-starred restaurants/i,
+  /restaurants in chicago/i,
+  /delivery and takeout/i,
+  /coffee shops/i
+];
+
 function cleanText(value = "") {
   return String(value)
     .replace(/<!\[CDATA\[|\]\]>/g, "")
@@ -116,10 +132,13 @@ function extractCandidateName(item) {
     .replace(/^review:\s*/i, "")
     .replace(/\s+-\s+.*$/, "")
     .replace(/\s+\|\s+.*$/, "");
+  if (GENERIC_LIST_PATTERNS.some((pattern) => pattern.test(title))) return "";
   const quoted = title.match(/[“"']([^“"']{3,70})[”"']/);
   if (quoted) return quoted[1];
   const beforeVerb = title.match(/^(.{3,70}?)\s+(opens|opened|is opening|debuts|lands|adds|brings|wins|earns)\b/i);
   if (beforeVerb) return beforeVerb[1];
+  const afterOf = title.match(/\bof\s+([A-Z][A-Za-z0-9&'’.\-\s]{2,70})$/);
+  if (afterOf) return afterOf[1];
   const afterAt = title.match(/\bat\s+(.{3,70})$/i);
   if (afterAt) return afterAt[1];
   return title.split(/[:,]/)[0].trim().slice(0, 70);
@@ -170,7 +189,7 @@ async function upsertSourceItem(item) {
 
 async function upsertRestaurantCandidate(item) {
   const name = extractCandidateName(item);
-  if (!name || name.length < 3) return false;
+  if (!name || name.length < 3 || GENERIC_LIST_PATTERNS.some((pattern) => pattern.test(name))) return false;
   const id = slug(name);
   const result = await query(
     `insert into ingested_restaurants (id, name, source_item_url, source_title, signals, confidence, raw)
@@ -205,6 +224,23 @@ async function upsertRestaurantCandidate(item) {
   return inserted;
 }
 
+async function cleanupLowQualityCandidates() {
+  await query(
+    `delete from ingested_restaurants
+     where confidence <= 0.62
+       and (
+         name ~* '^\\d+\\s+'
+         or name ~* '^(the best|best|every|all-time|where to|guide to)\\s+'
+         or name ~* 'restaurant openings'
+         or name ~* 'restaurants in chicago'
+         or name ~* 'michelin-starred restaurants'
+         or name ~* 'delivery and takeout'
+         or name ~* 'coffee shops'
+         or name in ('Chicago', 'Barcelona')
+       )`
+  );
+}
+
 export async function runSourceIngestion({ sources = DEFAULT_SOURCES } = {}) {
   const run = await query(`insert into source_runs default values returning id`);
   const runId = run.rows[0].id;
@@ -225,6 +261,8 @@ export async function runSourceIngestion({ sources = DEFAULT_SOURCES } = {}) {
       errors.push(`${source.id}: ${error.message}`);
     }
   }
+
+  await cleanupLowQualityCandidates();
 
   const status = errors.length === sources.length ? "failed" : errors.length ? "partial" : "complete";
   await query(
