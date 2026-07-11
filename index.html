@@ -651,7 +651,8 @@
 
     .restaurant-actions {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      position: relative;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       border-top: 1px solid var(--line);
     }
 
@@ -666,6 +667,7 @@
       color: var(--muted);
       font-weight: 800;
       text-decoration: none;
+      white-space: nowrap;
     }
 
     .restaurant-actions button:last-child,
@@ -673,9 +675,44 @@
       border-right: 0;
     }
 
+    .restaurant-actions > [data-card-menu] {
+      border-right: 0;
+    }
+
     .restaurant-actions button.active {
       color: var(--green);
       background: rgba(38, 115, 95, 0.1);
+    }
+
+    .action-menu {
+      position: absolute;
+      right: 8px;
+      bottom: 48px;
+      display: none;
+      width: min(190px, calc(100% - 16px));
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 16px 34px rgba(55, 40, 24, 0.18);
+      overflow: hidden;
+      z-index: 6;
+    }
+
+    .restaurant-actions.menu-open .action-menu {
+      display: grid;
+    }
+
+    .action-menu button {
+      justify-content: start;
+      min-height: 40px;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 0 12px;
+      text-align: left;
+    }
+
+    .action-menu button:last-child {
+      border-bottom: 0;
     }
 
     .profile-card {
@@ -1022,12 +1059,15 @@
         border-right: 0;
       }
       .topbar {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding: 12px;
       }
       .top-actions {
-        justify-content: start;
+        justify-content: end;
       }
       .tabs {
+        grid-column: 1 / -1;
         width: 100%;
         grid-auto-flow: initial;
         grid-template-columns: repeat(3, 1fr);
@@ -1036,14 +1076,38 @@
         min-width: 0;
       }
       .content {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
       }
       aside {
+        order: 1;
         border-right: 0;
         border-bottom: 1px solid var(--line);
+        padding: 12px;
+      }
+      main {
+        order: 2;
+        padding: 12px;
+      }
+      .profile-panel {
+        order: 3;
+        padding: 12px;
       }
       .hero {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+      }
+      .hero .map {
+        order: -1;
+        min-height: 320px;
+      }
+      .hero h1 {
+        font-size: 38px;
+        line-height: 1.02;
+      }
+      .hero .deck {
+        font-size: 14px;
       }
       .metric-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1059,12 +1123,9 @@
       .section-head { display: block; }
       .detail-grid { grid-template-columns: 1fr; }
       .detail-top h2 { font-size: 24px; }
-      .restaurant-actions { grid-template-columns: 1fr; }
+      .restaurant-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .restaurant-actions button,
-      .restaurant-actions a {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
+      .restaurant-actions a { border-bottom: 0; }
     }
   </style>
 </head>
@@ -2958,10 +3019,13 @@
             </div>
             <div class="restaurant-actions">
               <button data-restaurant-open="${restaurant.id}">Details</button>
-              <button data-recommend-restaurant="${restaurant.id}">Recommend</button>
               <button class="${saved ? "active" : ""}" data-action="saved" data-id="${restaurant.id}">${saved ? "Saved" : "Save"}</button>
-              <button class="${visited ? "active" : ""}" data-action="visited" data-id="${restaurant.id}">${visited ? "Visited" : "Visited?"}</button>
-              <button class="${passed ? "active" : ""}" data-action="passed" data-id="${restaurant.id}">${passed ? "Passed" : "Pass"}</button>
+              <button type="button" data-card-menu="${restaurant.id}" aria-expanded="false">More</button>
+              <div class="action-menu" id="menu-${restaurant.id}">
+                <button type="button" data-recommend-restaurant="${restaurant.id}">Recommend</button>
+                <button type="button" class="${visited ? "active" : ""}" data-action="visited" data-id="${restaurant.id}">${visited ? "Visited" : "Mark visited"}</button>
+                <button type="button" class="${passed ? "active" : ""}" data-action="passed" data-id="${restaurant.id}">${passed ? "Passed" : "Pass on this"}</button>
+              </div>
             </div>
           </article>
         `;
@@ -3191,6 +3255,26 @@
           return;
         }
 
+        const menuButton = event.target.closest("[data-card-menu]");
+        if (menuButton) {
+          const actions = menuButton.closest(".restaurant-actions");
+          const isOpen = actions.classList.contains("menu-open");
+          document.querySelectorAll(".restaurant-actions.menu-open").forEach((row) => {
+            row.classList.remove("menu-open");
+            row.querySelector("[data-card-menu]")?.setAttribute("aria-expanded", "false");
+          });
+          actions.classList.toggle("menu-open", !isOpen);
+          menuButton.setAttribute("aria-expanded", String(!isOpen));
+          return;
+        }
+
+        if (!event.target.closest(".restaurant-actions")) {
+          document.querySelectorAll(".restaurant-actions.menu-open").forEach((row) => {
+            row.classList.remove("menu-open");
+            row.querySelector("[data-card-menu]")?.setAttribute("aria-expanded", "false");
+          });
+        }
+
         const areaFilter = event.target.closest("[data-area-filter]");
         if (areaFilter) {
           state.neighborhood = areaFilter.dataset.areaFilter;
@@ -3212,6 +3296,8 @@
           openRecommendDialog(recommend.dataset.recommendRestaurant);
           return;
         }
+
+        if (event.target.closest(".action-menu")) return;
 
         const restaurantOpen = event.target.closest("[data-restaurant-open]");
         if (restaurantOpen) {
