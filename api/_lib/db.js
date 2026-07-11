@@ -11,18 +11,29 @@ export function getPool() {
   }
 
   if (!pool) {
-    // Verify database TLS certificates by default. Set PGSSLMODE=disable for
-    // local Postgres without TLS, or DATABASE_SSL_NO_VERIFY=1 only for
-    // providers with self-signed certificates.
-    const ssl = process.env.PGSSLMODE === "disable"
-      ? false
-      : { rejectUnauthorized: process.env.DATABASE_SSL_NO_VERIFY !== "1" };
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl
+      ssl: sslConfig(process.env)
     });
   }
   return pool;
+}
+
+// Verify database TLS certificates by default. Providers with a private CA
+// (for example Supabase) fail default verification, so DATABASE_CA_CERT
+// accepts their CA bundle (PEM, literal \n allowed) for proper pinning.
+// PGSSLMODE=disable is for local Postgres without TLS;
+// DATABASE_SSL_NO_VERIFY=1 is a last-resort escape hatch that keeps TLS but
+// skips certificate checks.
+export function sslConfig(env) {
+  if (env.PGSSLMODE === "disable") return false;
+  if (env.DATABASE_CA_CERT) {
+    return {
+      ca: env.DATABASE_CA_CERT.replace(/\\n/g, "\n"),
+      rejectUnauthorized: true
+    };
+  }
+  return { rejectUnauthorized: env.DATABASE_SSL_NO_VERIFY !== "1" };
 }
 
 export async function ensureSchema() {
