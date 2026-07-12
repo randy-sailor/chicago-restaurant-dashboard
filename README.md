@@ -89,7 +89,7 @@ Accounts are verified by a 6-digit emailed code (15-minute expiry, single use, r
 
 Required environment variables:
 
-- `DATABASE_URL`: Postgres connection string, for example Neon, Supabase, or Vercel Postgres. TLS certificates are verified by default; see `.env.example` for local overrides.
+- `DATABASE_URL`: Postgres connection string, for example Neon, Supabase, or Vercel Postgres. TLS certificates are verified by default. Providers with a private CA (Supabase) need `DATABASE_CA_CERT` set to their downloadable CA certificate; see `.env.example` for details and local overrides.
 - `APP_SECRET`: long random string for signed session cookies. The API refuses to start sessions without it in production.
 - `RESEND_API_KEY`: Resend API key for production email delivery.
 - `EMAIL_FROM`: verified sender address, for example `Chicago Restaurant Dashboard <updates@chicagorestaurantdashboard.com>`.

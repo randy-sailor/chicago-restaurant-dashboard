@@ -24,6 +24,9 @@
         <button class="icon-button" id="refreshScores" title="Refresh recommendations" aria-label="Refresh recommendations">
           <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.2 6.5"></path><path d="M3 12A9 9 0 0 1 18.2 5.5"></path><path d="M21 4v6h-6"></path><path d="M3 20v-6h6"></path></svg>
         </button>
+        <button class="icon-button" id="accountButton" data-view-button="account" title="Account settings" aria-label="Account settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"></path></svg>
+        </button>
       </div>
     </header>
 
@@ -96,48 +99,8 @@
 
         <section class="view" id="profileView">
           <section class="panel panel-pad">
-            <h1>Your Eating Profile</h1>
-            <p class="deck">Set your public sharing identity and the dining preferences that should shape recommendations, saved lists, and restaurant emails.</p>
-            <form id="preferenceForm" class="preference-form">
-              <div class="preference-grid">
-                <label>
-                  Display name
-                  <input name="displayName" type="text" maxlength="80" placeholder="Jane Doe">
-                </label>
-                <label>
-                  Home neighborhood
-                  <input name="homeNeighborhood" type="text" maxlength="80" placeholder="Logan Square">
-                </label>
-                <label>
-                  Favorite cuisines
-                  <input name="favoriteCuisines" type="text" placeholder="Thai, omakase, bakeries">
-                </label>
-                <label>
-                  Dietary preferences
-                  <input name="dietaryPreferences" type="text" placeholder="Vegetarian, shellfish allergy">
-                </label>
-                <label>
-                  Dining occasions
-                  <input name="diningOccasions" type="text" placeholder="Date night, solo lunch, visitors">
-                </label>
-                <label>
-                  Price comfort
-                  <select name="pricePreference">
-                    <option value="">No preference</option>
-                    <option value="$">$</option>
-                    <option value="$$">$$</option>
-                    <option value="$$$">$$$</option>
-                    <option value="$$$$">$$$$</option>
-                  </select>
-                </label>
-              </div>
-              <label>
-                Profile note
-                <textarea name="bio" maxlength="500" placeholder="What kinds of meals are you usually looking for?"></textarea>
-              </label>
-              <button type="submit">Save eating profile</button>
-            </form>
-            <p class="hint" id="preferenceStatus" role="status"></p>
+            <h1>Your Taste Signals</h1>
+            <p class="deck">Saved, visited, and passed reactions from the dashboard shape your Personal Fit lane. Your identity, dining preferences, and notifications live in <button class="chip" type="button" data-view-button="account">Account settings</button>.</p>
             <div class="metric-grid" id="profileMetrics"></div>
           </section>
           <div class="section-head">
@@ -147,6 +110,95 @@
             </div>
           </div>
           <section class="panel panel-pad" id="tasteWeights"></section>
+        </section>
+
+        <section class="view" id="accountView">
+          <section class="panel panel-pad">
+            <h1>Account &amp; Settings</h1>
+            <p class="deck">Manage your sign-in, sharing identity, dining preferences, and email notifications. Everything here syncs to your account across devices.</p>
+          </section>
+          <div class="account-grid">
+            <div>
+              <div class="profile-card">
+                <h2>Account</h2>
+                <p class="hint" id="accountStatus" role="status">Sign in or create a profile to sync taste signals and receive updates.</p>
+                <form id="accountForm" class="account-form">
+                  <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
+                  <button type="submit">Email me a sign-in code</button>
+                </form>
+                <form id="verifyForm" class="account-form" hidden>
+                  <input id="codeInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d{6}" maxlength="6" placeholder="6-digit code" required>
+                  <button type="submit">Verify and sign in</button>
+                  <button type="button" class="chip" id="verifyCancel">Use a different email</button>
+                </form>
+                <button class="chip" type="button" id="logoutButton" hidden>Sign out</button>
+              </div>
+              <div class="profile-card">
+                <h2>Sign-In &amp; Security</h2>
+                <p class="hint">There is no password to remember or reset. Signing in always uses a fresh 6-digit code emailed to you; each code is single-use and expires after 15 minutes. To sign in on a new device, or if a code goes missing, just request a new one.</p>
+              </div>
+              <div class="profile-card">
+                <h2>Notifications</h2>
+                <p class="hint">Choose what should trigger email updates.</p>
+                <form id="notificationForm" class="notification-form">
+                  <label><input type="checkbox" name="hot_new" checked> New openings</label>
+                  <label><input type="checkbox" name="awarded" checked> Awards and Michelin</label>
+                  <label><input type="checkbox" name="essential"> Essential/popular captures</label>
+                  <label><input type="checkbox" name="iconic"> Iconic dish additions</label>
+                  <select name="frequency" aria-label="Notification frequency">
+                    <option value="daily">Daily digest</option>
+                    <option value="weekly">Weekly digest</option>
+                  </select>
+                  <button type="submit">Save notifications</button>
+                </form>
+                <p class="hint" id="notificationStatus" role="status"></p>
+              </div>
+            </div>
+            <div class="profile-card">
+              <h2>Eating Profile</h2>
+              <p class="hint">Your sharing identity and the dining preferences that shape recommendations and restaurant emails.</p>
+              <form id="preferenceForm" class="preference-form">
+                <div class="preference-grid">
+                  <label>
+                    Display name
+                    <input name="displayName" type="text" maxlength="80" placeholder="Jane Doe">
+                  </label>
+                  <label>
+                    Home neighborhood
+                    <input name="homeNeighborhood" type="text" maxlength="80" placeholder="Logan Square">
+                  </label>
+                  <label>
+                    Favorite cuisines
+                    <input name="favoriteCuisines" type="text" placeholder="Thai, omakase, bakeries">
+                  </label>
+                  <label>
+                    Dietary preferences
+                    <input name="dietaryPreferences" type="text" placeholder="Vegetarian, shellfish allergy">
+                  </label>
+                  <label>
+                    Dining occasions
+                    <input name="diningOccasions" type="text" placeholder="Date night, solo lunch, visitors">
+                  </label>
+                  <label>
+                    Price comfort
+                    <select name="pricePreference">
+                      <option value="">No preference</option>
+                      <option value="$">$</option>
+                      <option value="$$">$$</option>
+                      <option value="$$$">$$$</option>
+                      <option value="$$$$">$$$$</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  Profile note
+                  <textarea name="bio" maxlength="500" placeholder="What kinds of meals are you usually looking for?"></textarea>
+                </label>
+                <button type="submit">Save eating profile</button>
+              </form>
+              <p class="hint" id="preferenceStatus" role="status"></p>
+            </div>
+          </div>
         </section>
 
         <section class="view" id="sourcesView">
@@ -171,36 +223,6 @@
       </main>
 
       <section class="profile-panel">
-        <div class="profile-card">
-          <h2>Account</h2>
-          <p class="hint" id="accountStatus" role="status">Sign in or create a profile to sync taste signals and receive updates.</p>
-          <form id="accountForm" class="account-form">
-            <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
-            <button type="submit">Email me a sign-in code</button>
-          </form>
-          <form id="verifyForm" class="account-form" hidden>
-            <input id="codeInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d{6}" maxlength="6" placeholder="6-digit code" required>
-            <button type="submit">Verify and sign in</button>
-            <button type="button" class="chip" id="verifyCancel">Use a different email</button>
-          </form>
-          <button class="chip" type="button" id="logoutButton" hidden>Sign out</button>
-        </div>
-        <div class="profile-card">
-          <h2>Notifications</h2>
-          <p class="hint">Choose what should trigger email updates.</p>
-          <form id="notificationForm" class="notification-form">
-            <label><input type="checkbox" name="hot_new" checked> New openings</label>
-            <label><input type="checkbox" name="awarded" checked> Awards and Michelin</label>
-            <label><input type="checkbox" name="essential"> Essential/popular captures</label>
-            <label><input type="checkbox" name="iconic"> Iconic dish additions</label>
-            <select name="frequency" aria-label="Notification frequency">
-              <option value="daily">Daily digest</option>
-              <option value="weekly">Weekly digest</option>
-            </select>
-            <button type="submit">Save notifications</button>
-          </form>
-          <p class="hint" id="notificationStatus" role="status"></p>
-        </div>
         <div class="profile-card">
           <h2>Live Profile</h2>
           <p class="hint">Click Save, Visited, or Pass on restaurant cards to tune recommendations.</p>
