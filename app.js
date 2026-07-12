@@ -34,6 +34,10 @@ function switchView(viewName) {
     if (active) button.setAttribute("aria-current", "true");
     else button.removeAttribute("aria-current");
   });
+  const accountButton = $("#accountButton");
+  accountButton.classList.toggle("active", viewName === "account");
+  if (viewName === "account") accountButton.setAttribute("aria-current", "true");
+  else accountButton.removeAttribute("aria-current");
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === `${viewName}View`);
   });
@@ -147,6 +151,14 @@ function renderAccount() {
   $("#notificationForm").querySelectorAll("input, select, button").forEach((element) => {
     element.disabled = !state.account;
   });
+
+  const accountButton = $("#accountButton");
+  accountButton.classList.toggle("signed-in", Boolean(state.account));
+  const label = state.account
+    ? `Account settings, signed in as ${state.account.email}`
+    : "Account settings, signed out";
+  accountButton.setAttribute("aria-label", label);
+  accountButton.title = label;
 }
 
 function renderPreferenceForm() {
