@@ -4,6 +4,7 @@ const files = [
   "index.html",
   "styles.css",
   "app.js",
+  "theme-init.js",
   "data/restaurants.js",
   "api/auth/register.js",
   "api/auth/verify.js",

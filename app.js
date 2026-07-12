@@ -26,6 +26,28 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 
+// theme-init.js sets data-theme before first paint; this handles the toggle
+// and remembers an explicit choice.
+function applyTheme(theme, persist = true) {
+  document.documentElement.dataset.theme = theme;
+  if (persist) {
+    try {
+      localStorage.setItem("chiTheme", theme);
+    } catch {
+      // Storage may be unavailable (private browsing); theme still applies.
+    }
+  }
+  syncThemeToggle();
+}
+
+function syncThemeToggle() {
+  const button = $("#themeToggle");
+  const dark = document.documentElement.dataset.theme === "dark";
+  const label = dark ? "Switch to light mode" : "Switch to dark mode";
+  button.setAttribute("aria-label", label);
+  button.title = label;
+}
+
 function switchView(viewName) {
   state.view = viewName;
   document.querySelectorAll(".tab").forEach((button) => {
@@ -1049,6 +1071,10 @@ function bindEvents() {
   });
 
   $("#homeButton").addEventListener("click", () => switchView("discover"));
+
+  $("#themeToggle").addEventListener("click", () => {
+    applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+  });
 }
 
 function renderDataCurrency() {
@@ -1083,6 +1109,7 @@ function openDeepLink(id) {
   `);
 }
 
+syncThemeToggle();
 setupFilters();
 bindEvents();
 renderAccount();
