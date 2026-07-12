@@ -1048,15 +1048,6 @@ function bindEvents() {
     }
   });
 
-  $("#refreshScores").addEventListener("click", async (event) => {
-    const button = event.currentTarget;
-    button.disabled = true;
-    try {
-      await Promise.all([loadAccount(), loadIngestionStatus()]);
-    } finally {
-      button.disabled = false;
-    }
-  });
   $("#homeButton").addEventListener("click", () => switchView("discover"));
 }
 
@@ -1099,6 +1090,9 @@ renderPreferenceForm();
 renderDataCurrency();
 loadAccount();
 loadIngestionStatus();
+// The backend refreshes on its own cron schedule; keep long-lived tabs in
+// sync by re-fetching ingestion status periodically instead of via a button.
+setInterval(loadIngestionStatus, 15 * 60 * 1000);
 render();
 const initialRestaurant = new URLSearchParams(window.location.search).get("restaurant");
 if (initialRestaurant) openDeepLink(initialRestaurant);
