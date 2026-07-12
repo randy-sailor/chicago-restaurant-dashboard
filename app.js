@@ -764,6 +764,9 @@ function renderSources() {
 async function loadIngestionStatus() {
   try {
     state.ingestionStatus = await api("/api/ingestion/status");
+    const lastRefresh = (state.ingestionStatus.runs || [])
+      .find((run) => run.finished_at && run.status !== "failed");
+    if (lastRefresh) renderDataCurrency(new Date(lastRefresh.finished_at));
     renderSources();
   } catch (error) {
     $("#ingestionSummary").textContent = "Ingestion status is not available yet.";
@@ -1077,10 +1080,16 @@ function bindEvents() {
   });
 }
 
-function renderDataCurrency() {
-  const latest = RESTAURANTS.map((r) => r.opened).sort().at(-1);
-  if (!latest) return;
-  const date = new Date(`${latest}T12:00:00`);
+// The hero's "current to" date tracks the latest successful scheduled
+// ingestion run; the newest seed-data date is the fallback until the
+// status API has responded (or when it is unreachable).
+function renderDataCurrency(refreshedAt) {
+  let date = refreshedAt;
+  if (!date) {
+    const latest = RESTAURANTS.map((r) => r.opened).sort().at(-1);
+    if (!latest) return;
+    date = new Date(`${latest}T12:00:00`);
+  }
   if (Number.isNaN(date.getTime())) return;
   $("#dataCurrency").textContent = date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
