@@ -158,22 +158,14 @@ a { color: inherit; }
 
 .content {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr) 360px;
+  grid-template-columns: 320px minmax(0, 1fr);
   min-height: calc(100vh - 112px);
-}
-
-aside, .profile-panel {
-  background: rgba(255, 253, 248, 0.72);
 }
 
 aside {
   border-right: 1px solid var(--line);
   padding: 18px;
-}
-
-.profile-panel {
-  border-left: 1px solid var(--line);
-  padding: 18px;
+  background: rgba(255, 253, 248, 0.72);
 }
 
 main {
@@ -857,6 +849,21 @@ button.metric:focus-visible {
   .preference-grid { grid-template-columns: 1fr; }
 }
 
+.next-up-block {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.next-up-block .chip strong {
+  color: var(--ink);
+}
+
+.next-up-block .chip span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .account-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -1087,11 +1094,6 @@ button.detail-section:hover {
   .content {
     grid-template-columns: 290px minmax(0, 1fr);
   }
-  .profile-panel {
-    grid-column: 1 / -1;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -1133,10 +1135,6 @@ button.detail-section:hover {
   }
   main {
     order: 2;
-    padding: 12px;
-  }
-  .profile-panel {
-    order: 3;
     padding: 12px;
   }
   .hero {

@@ -704,20 +704,17 @@ function renderProfile() {
     : `<p class="hint">No taste signals yet. Save or visit a few places and this will wake up.</p>`;
   $("#tasteWeights").innerHTML = weightMarkup;
 
-  $("#miniProfile").innerHTML = topWeights.slice(0, 5).length
-    ? topWeights.slice(0, 5).map(([label, value]) => `
-      <div class="taste-row">
-        <strong>${label}</strong>
-        <div class="bar"><div class="bar-fill" style="width:${Math.max(7, Math.abs(value) / max * 100)}%; background:${value >= 0 ? "var(--green)" : "var(--tomato)"}"></div></div>
-        <span>${value}</span>
-      </div>
-    `).join("")
-    : `<p class="hint">No saved taste data yet.</p>`;
+}
 
-  const nextRows = filteredRestaurants().slice(0, 4);
-  $("#nextUp").innerHTML = nextRows.map((restaurant) => `
-    <div class="timeline-item"><strong>${restaurant.name}</strong><br>${restaurant.neighborhood} · ${restaurant.format}</div>
-  `).join("");
+function renderNextUp(rows) {
+  const nextRows = rows.slice(0, 4);
+  $("#nextUp").innerHTML = nextRows.length
+    ? nextRows.map((restaurant) => `
+      <button class="chip" type="button" data-restaurant-open="${restaurant.id}" aria-label="Open details for ${esc(restaurant.name)}">
+        <strong>${esc(restaurant.name)}</strong>&nbsp;<span>${esc(restaurant.neighborhood)}</span>
+      </button>
+    `).join("")
+    : `<span class="hint">No matches under the current filters.</span>`;
 }
 
 function renderSources() {
@@ -787,6 +784,7 @@ function render() {
     ? "The Personal Fit lane is always ordered by your match score."
     : "";
   renderMetrics(rows);
+  renderNextUp(rows);
   renderMap(rows);
   renderCards(rows);
   renderProfile();
