@@ -71,6 +71,10 @@
               <h1>Where the next great Chicago meal might happen.</h1>
               <p class="deck">A public-source restaurant dashboard for hot openings, award momentum, menu clues, and personal taste learning. The seed data is current to <span id="dataCurrency">its latest capture</span> and can be expanded with live connectors for editorial maps, official menus, booking pages, and city records.</p>
               <div class="metric-grid" id="metricGrid"></div>
+              <div class="next-up-block">
+                <div class="control-title">What To Book Next</div>
+                <div class="chips" id="nextUp"></div>
+              </div>
             </section>
 
             <section class="panel map" id="mapPanel" aria-label="Chicago restaurant map">
@@ -106,7 +110,7 @@
           <div class="section-head">
             <div>
               <h2>Taste Weights</h2>
-              <p>Signals inferred from your interactions.</p>
+              <p>Signals inferred from your interactions. Click Save, Visited, or Pass on restaurant cards to tune recommendations.</p>
             </div>
           </div>
           <section class="panel panel-pad" id="tasteWeights"></section>
@@ -219,24 +223,12 @@
             </div>
           </div>
           <div class="sources" id="sourceCards"></div>
+          <section class="panel panel-pad" style="margin-top: 12px;">
+            <h2>Data Caveat</h2>
+            <p class="hint">Menus, hours, reservations, and openings change quickly. Treat the dashboard as a scouting layer and confirm details on the restaurant or booking site before going.</p>
+          </section>
         </section>
       </main>
-
-      <section class="profile-panel">
-        <div class="profile-card">
-          <h2>Live Profile</h2>
-          <p class="hint">Click Save, Visited, or Pass on restaurant cards to tune recommendations.</p>
-          <div id="miniProfile"></div>
-        </div>
-        <div class="profile-card">
-          <h2>What To Book Next</h2>
-          <div class="timeline" id="nextUp"></div>
-        </div>
-        <div class="profile-card">
-          <h2>Data Caveat</h2>
-          <p class="hint">Menus, hours, reservations, and openings change quickly. Treat the dashboard as a scouting layer and confirm details on the restaurant or booking site before going.</p>
-        </div>
-      </section>
     </div>
   </div>
 
