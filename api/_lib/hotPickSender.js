@@ -5,9 +5,10 @@ import { dashboardData } from "./restaurants.js";
 import { dashboardUrlFor, pickHotPick, reservationFor } from "./hotPick.js";
 
 // Sends one never-repeating random curated restaurant to each opted-in
-// verified subscriber. Called by the daily notifications cron on Thursdays
-// (Vercel's Hobby plan allows only two cron jobs, so the hot pick shares
-// the digest schedule) and by the manual /api/notifications/hot-pick route.
+// verified subscriber. Runs from the daily notifications cron on Thursdays
+// and via the manual /api/notifications/digest?task=hot-pick trigger
+// (Vercel's Hobby plan caps projects at two cron jobs and deployments at
+// twelve serverless functions, so the hot pick shares the digest route).
 export async function runHotPickSends() {
   const { restaurants, reservationLinks } = dashboardData();
   const usersResult = await query(

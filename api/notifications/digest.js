@@ -10,6 +10,14 @@ export default async function handler(req, res) {
   try {
     requireCronSecret(req);
 
+    // Manual hot-pick trigger (?task=hot-pick) lives on this route because
+    // Vercel's Hobby plan caps deployments at 12 serverless functions.
+    const task = new URL(req.url, "http://localhost").searchParams.get("task");
+    if (task === "hot-pick") {
+      sendJson(res, 200, { hotPick: await runHotPickSends() });
+      return;
+    }
+
     const eventsResult = await query(
       `select *
        from restaurant_events
