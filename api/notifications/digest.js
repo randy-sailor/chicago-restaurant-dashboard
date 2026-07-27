@@ -4,6 +4,7 @@ import { restaurantDigestEmail } from "../_lib/emailTemplates.js";
 import { handleError, sendJson } from "../_lib/http.js";
 import { requireCronSecret } from "../_lib/cron.js";
 import { eventsForUser, isDigestDue } from "../_lib/digest.js";
+import { runHotPickSends } from "../_lib/hotPickSender.js";
 
 export default async function handler(req, res) {
   try {
@@ -65,7 +66,20 @@ export default async function handler(req, res) {
       }
     }
 
-    sendJson(res, 200, { sent, skipped, failed: failures.length, events: events.length });
+    // The weekly hot pick shares this daily cron (Vercel Hobby allows only
+    // two cron jobs) and goes out on Thursdays. Its own error isolation and
+    // 5-day guard make this safe to attempt independently of digest results.
+    let hotPick = null;
+    if (new Date().getUTCDay() === 4) {
+      try {
+        hotPick = await runHotPickSends();
+      } catch (error) {
+        hotPick = { error: true };
+        console.error("[notifications/digest:hot-pick]", { message: error.message });
+      }
+    }
+
+    sendJson(res, 200, { sent, skipped, failed: failures.length, events: events.length, hotPick });
   } catch (error) {
     handleError(res, error);
   }

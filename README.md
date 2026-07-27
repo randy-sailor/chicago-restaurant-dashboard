@@ -96,7 +96,7 @@ Required environment variables:
 - `EMAIL_FROM`: verified sender address, for example `Chicago Restaurant Dashboard <updates@chicagorestaurantdashboard.com>`.
 - `CRON_SECRET`: bearer token required by the cron/event routes (`/api/ingestion/run`, `/api/notifications/digest`, `/api/restaurants/capture-event`). These routes fail closed if it is unset. Vercel sends it automatically on scheduled invocations.
 
-`vercel.json` includes daily crons for `/api/ingestion/run` and `/api/notifications/digest`, a weekly Thursday cron for `/api/notifications/hot-pick`, plus security headers (CSP, frame-ancestors, nosniff).
+`vercel.json` includes daily crons for `/api/ingestion/run` and `/api/notifications/digest`, plus security headers (CSP, frame-ancestors, nosniff). Vercel's Hobby plan allows at most two cron jobs, so the weekly hot pick runs from the daily digest cron on Thursdays; `/api/notifications/hot-pick` remains as a manual cron-secret-protected trigger.
 
 The hot pick sends every subscriber (on by default, opt-out in notification preferences) one randomly chosen curated restaurant a week with menu highlights and a reservation link. Sends are tracked per user in `hot_pick_sends`, so nobody ever receives the same restaurant twice; once a subscriber has seen the whole curated list, sends stop rather than recycle.
 
