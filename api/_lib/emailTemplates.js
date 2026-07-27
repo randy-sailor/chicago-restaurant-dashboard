@@ -207,6 +207,58 @@ export function restaurantDigestEmail(events) {
   };
 }
 
+export function hotPickEmail({ restaurant, reservation, mapsUrl, dashboardUrl }) {
+  const menu = Array.isArray(restaurant.menu) ? restaurant.menu.slice(0, 4) : [];
+  const price = "$".repeat(restaurant.price || 0);
+  const card = `
+    <tr>
+      <td style="padding:0 0 12px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${palette.line};border-radius:8px;background:${palette.surface};">
+          <tr>
+            <td style="padding:16px 16px 14px 16px;">
+              <div style="font:700 11px/1.2 Arial, sans-serif;text-transform:uppercase;color:${palette.tomato};letter-spacing:.08em;">${esc(restaurant.neighborhood)}${price ? ` · ${esc(price)}` : ""}</div>
+              <div style="font:800 24px/1.18 Arial, sans-serif;color:${palette.ink};margin-top:5px;">${esc(restaurant.name)}</div>
+              <div style="font:14px/1.45 Arial, sans-serif;color:${palette.muted};margin-top:7px;">${esc(restaurant.format)}</div>
+              <div style="font:14px/1.45 Arial, sans-serif;color:${palette.muted};margin-top:3px;">${esc(restaurant.address || "Chicago")}</div>
+              ${menu.length ? `
+                <div style="font:700 11px/1.2 Arial, sans-serif;text-transform:uppercase;color:${palette.green};letter-spacing:.08em;margin-top:14px;">Order this</div>
+                <ul style="margin:8px 0 0 18px;padding:0;font:14px/1.55 Arial, sans-serif;color:${palette.ink};">${menu.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>
+              ` : ""}
+              <p style="margin:14px 0 0 0;font:12px/1.5 Arial, sans-serif;color:${palette.muted};">${esc(reservation.note)}</p>
+              <p style="margin:10px 0 0 0;font:13px/1.5 Arial, sans-serif;">
+                <a href="${esc(mapsUrl)}" style="color:${palette.blue};font-weight:700;">Open in Maps</a>
+                &nbsp;·&nbsp;
+                <a href="${esc(dashboardUrl)}" style="color:${palette.blue};font-weight:700;">View on the dashboard</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  `;
+  return {
+    subject: `Hot pick of the week: ${restaurant.name}`,
+    text: [
+      `This week's hot pick: ${restaurant.name} (${restaurant.neighborhood}${price ? `, ${price}` : ""}).`,
+      restaurant.format,
+      restaurant.note,
+      menu.length ? `Order this: ${menu.join("; ")}` : "",
+      `${reservation.label}: ${reservation.url}`,
+      `View on the dashboard: ${dashboardUrl}`
+    ].filter(Boolean).join("\n\n"),
+    html: shell({
+      preview: `${restaurant.name} in ${restaurant.neighborhood} — this week's hot pick.`,
+      eyebrow: "Hot pick of the week",
+      title: restaurant.name,
+      intro: restaurant.note || `A standout ${restaurant.neighborhood} pick from the dashboard.`,
+      children: card,
+      footerNote: "You receive one never-repeating hot pick a week. Adjust notification preferences in the dashboard's Account settings.",
+      ctaLabel: reservation.label,
+      ctaUrl: reservation.url
+    })
+  };
+}
+
 export function restaurantRecommendationEmail({ restaurant, senderEmail, message, restaurantUrl }) {
   const menu = Array.isArray(restaurant.menu) ? restaurant.menu.slice(0, 4) : [];
   const sender = senderEmail || "Someone";

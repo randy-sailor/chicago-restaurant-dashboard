@@ -2,14 +2,14 @@ import { query } from "./_lib/db.js";
 import { requireSession } from "./_lib/session.js";
 import { handleError, readJson, sendJson } from "./_lib/http.js";
 
-const columns = ["hot_new", "awarded", "iconic", "essential"];
+const columns = ["hot_new", "awarded", "iconic", "essential", "hot_pick"];
 
 export default async function handler(req, res) {
   try {
     const session = requireSession(req);
 
     if (req.method === "GET") {
-      const result = await query(`select hot_new, awarded, iconic, essential, frequency from subscriptions where user_id = $1`, [session.id]);
+      const result = await query(`select hot_new, awarded, iconic, essential, hot_pick, frequency from subscriptions where user_id = $1`, [session.id]);
       sendJson(res, 200, { subscription: result.rows[0] || null });
       return;
     }
@@ -24,15 +24,16 @@ export default async function handler(req, res) {
       awarded: Boolean(body.awarded),
       iconic: Boolean(body.iconic),
       essential: Boolean(body.essential),
+      hot_pick: Boolean(body.hot_pick),
       frequency: ["daily", "weekly"].includes(body.frequency) ? body.frequency : "daily"
     };
 
     const result = await query(
-      `insert into subscriptions (user_id, hot_new, awarded, iconic, essential, frequency, updated_at)
-       values ($1, $2, $3, $4, $5, $6, now())
+      `insert into subscriptions (user_id, hot_new, awarded, iconic, essential, hot_pick, frequency, updated_at)
+       values ($1, $2, $3, $4, $5, $6, $7, now())
        on conflict (user_id)
-       do update set hot_new = $2, awarded = $3, iconic = $4, essential = $5, frequency = $6, updated_at = now()
-       returning hot_new, awarded, iconic, essential, frequency`,
+       do update set hot_new = $2, awarded = $3, iconic = $4, essential = $5, hot_pick = $6, frequency = $7, updated_at = now()
+       returning hot_new, awarded, iconic, essential, hot_pick, frequency`,
       [session.id, ...columns.map((key) => values[key]), values.frequency]
     );
 
