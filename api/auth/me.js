@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     const [subscription, signals, profile] = await Promise.all([
-      query(`select hot_new, awarded, iconic, essential, frequency from subscriptions where user_id = $1`, [session.id]),
+      query(`select hot_new, awarded, iconic, essential, hot_pick, frequency from subscriptions where user_id = $1`, [session.id]),
       query(
         `select restaurant_id, action, created_at
          from taste_signals

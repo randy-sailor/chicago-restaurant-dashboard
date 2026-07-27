@@ -203,7 +203,7 @@ function renderPreferenceForm() {
 function applySubscription(subscription) {
   if (!subscription) return;
   const form = $("#notificationForm");
-  ["hot_new", "awarded", "essential", "iconic"].forEach((name) => {
+  ["hot_new", "awarded", "essential", "iconic", "hot_pick"].forEach((name) => {
     form.elements[name].checked = Boolean(subscription[name]);
   });
   form.elements.frequency.value = subscription.frequency || "daily";
@@ -912,6 +912,7 @@ function bindEvents() {
       awarded: form.elements.awarded.checked,
       essential: form.elements.essential.checked,
       iconic: form.elements.iconic.checked,
+      hot_pick: form.elements.hot_pick.checked,
       frequency: form.elements.frequency.value
     };
     try {

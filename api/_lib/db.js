@@ -69,6 +69,14 @@ export async function ensureSchema() {
       );
 
       alter table subscriptions add column if not exists last_digest_at timestamptz;
+      alter table subscriptions add column if not exists hot_pick boolean not null default true;
+
+      create table if not exists hot_pick_sends (
+        user_id uuid not null references users(id) on delete cascade,
+        restaurant_id text not null,
+        sent_at timestamptz not null default now(),
+        primary key (user_id, restaurant_id)
+      );
 
       create table if not exists user_profiles (
         user_id uuid primary key references users(id) on delete cascade,
