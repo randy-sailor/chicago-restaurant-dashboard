@@ -7,7 +7,7 @@ Offline-capable prototype for scouting Chicago restaurants from public sources.
 - Ranks hot new restaurants by editorial heat, novelty, price signal, and saved user preferences.
 - Organizes places by filterable cards and a tile-backed map using OpenStreetMap tiles with a local fallback.
 - Makes KPI cards clickable: reset matches, sort by heat, drill into areas, and filter experience-led restaurants.
-- Adds lane browsing for Hot New, Essential/Popular, Awarded, Iconic, and Personal Fit restaurants.
+- Adds lane browsing for Hot New, Essential/Popular, Awarded, Iconic, Classics (century-spanning institutions), and Personal Fit restaurants.
 - Opens restaurant detail panels from cards, Details buttons, and map pins.
 - Shows menu cues, source provenance, map links, and reservation/official links where available.
 - Stores taste signals locally and syncs them to Supabase for signed-in users.
@@ -29,6 +29,9 @@ Offline-capable prototype for scouting Chicago restaurants from public sources.
 - Eater Chicago Naia opening, published May 28, 2026: <https://chicago.eater.com/restaurant-news/167998/naia-restaurant-opening-riverwalk-chicago-prime-provisions>
 - Eater Chicago Guillotine Bakery opening, published June 3, 2026: <https://chicago.eater.com/restaurant-news/168047/guillotine-bakery-opening-west-town-french-pastry>
 - Axios Chicago Fulton Market openings, published April 14, 2026: <https://www.axios.com/local/chicago/2026/04/14/fulton-market-mendocino-prasino-do-rite-pizza-lobo-labriola>
+- Choose Chicago classic restaurants guide: <https://www.choosechicago.com/articles/food-drink/classic-chicago-restaurants/>
+- Time Out Chicago Loop and downtown dining: <https://www.timeout.com/chicago/restaurants/best-restaurants-in-the-loop>
+- Eater Chicago deep dish and pan pizza guide: <https://chicago.eater.com/maps/best-deep-dish-pizza-chicago>
 - OpenStreetMap raster tiles for the map viewport: <https://tile.openstreetmap.org/>
 
 ## Source ingestion layer
