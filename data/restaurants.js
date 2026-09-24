@@ -78,6 +78,27 @@ window.DASHBOARD_DATA = {
       "contributes": "Iconic Chicago dish stops and culturally specific must-eat items."
     },
     {
+      "id": "choose-chicago-classics",
+      "title": "Choose Chicago: Classic Restaurants",
+      "freshness": "Evergreen guide, checked Sept. 2026",
+      "url": "https://www.choosechicago.com/articles/food-drink/classic-chicago-restaurants/",
+      "contributes": "Century-spanning Chicago institutions: founding dates, signature dishes, and the traditions that made them destinations."
+    },
+    {
+      "id": "timeout-loop-2026",
+      "title": "Time Out Chicago: Loop & Downtown Dining",
+      "freshness": "Updated 2026",
+      "url": "https://www.timeout.com/chicago/restaurants/best-restaurants-in-the-loop",
+      "contributes": "Downtown coverage across the Loop, River North, Streeterville, and the Magnificent Mile, from quick lunches to special-occasion rooms."
+    },
+    {
+      "id": "eater-deep-dish",
+      "title": "Eater Chicago: Deep Dish & Pan Pizza Guide",
+      "freshness": "Evergreen map, checked Sept. 2026",
+      "url": "https://chicago.eater.com/maps/best-deep-dish-pizza-chicago",
+      "contributes": "Deep dish, stuffed, and pan pizza landmarks with style notes and history."
+    },
+    {
       "id": "official-sites",
       "title": "Restaurant Official Sites",
       "freshness": "Linked where available",
@@ -110,6 +131,11 @@ window.DASHBOARD_DATA = {
       "id": "iconic",
       "label": "Iconic",
       "note": "Must-eat"
+    },
+    {
+      "id": "classic",
+      "label": "Classics",
+      "note": "Institutions"
     },
     {
       "id": "personal",
@@ -1991,6 +2017,1066 @@ window.DASHBOARD_DATA = {
       "lat": 41.917,
       "lng": -87.707,
       "tone": "#2f6190"
+    },
+    {
+      "id": "the-berghoff",
+      "name": "The Berghoff",
+      "neighborhood": "Loop",
+      "address": "17 W Adams St",
+      "cuisine": [
+        "German",
+        "Chicago Classic",
+        "Comfort"
+      ],
+      "occasions": [
+        "Lunch",
+        "Group",
+        "Casual"
+      ],
+      "price": 2,
+      "novelty": 18,
+      "heat": 82,
+      "opened": "1898-01-01",
+      "format": "German dining hall run by the same family since 1898",
+      "menu": [
+        "Wiener schnitzel with lemon and lingonberry",
+        "Sauerbraten with red cabbage and spaetzle",
+        "House-brand Berghoff root beer",
+        "Apple strudel"
+      ],
+      "note": "Holder of Chicago liquor license No. 1 after Prohibition and still one of the Loop's defining rooms; the wood-paneled dining hall is the destination as much as the menu.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.theberghoff.com/",
+      "lat": 41.8794,
+      "lng": -87.6284,
+      "tone": "#77516f",
+      "lanes": [
+        "classic",
+        "iconic",
+        "personal"
+      ]
+    },
+    {
+      "id": "lou-mitchells",
+      "name": "Lou Mitchell's",
+      "neighborhood": "Loop",
+      "address": "565 W Jackson Blvd",
+      "cuisine": [
+        "Breakfast",
+        "Diner",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Morning",
+        "Group",
+        "Casual"
+      ],
+      "price": 1,
+      "novelty": 16,
+      "heat": 85,
+      "opened": "1923-01-01",
+      "format": "Route 66 diner serving breakfast since 1923",
+      "menu": [
+        "Double-yolk eggs served in sizzling skillets",
+        "Fluffy omelettes with hash browns baked in",
+        "Free Milk Duds and doughnut holes while you wait in line",
+        "Thick-cut Greek toast with homemade marmalade"
+      ],
+      "note": "The official first stop on Route 66 and the classic pre-Union Station breakfast; the line moves fast and the doughnut holes are part of the ritual.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.loumitchells.com/",
+      "lat": 41.8779,
+      "lng": -87.6435,
+      "tone": "#b98024",
+      "lanes": [
+        "classic",
+        "iconic",
+        "personal"
+      ]
+    },
+    {
+      "id": "millers-pub",
+      "name": "Miller's Pub",
+      "neighborhood": "Loop",
+      "address": "134 S Wabash Ave",
+      "cuisine": [
+        "Tavern",
+        "American",
+        "Ribs"
+      ],
+      "occasions": [
+        "Lunch",
+        "Group",
+        "Casual"
+      ],
+      "price": 2,
+      "novelty": 14,
+      "heat": 78,
+      "opened": "1935-01-01",
+      "format": "Under-the-L tavern feeding the Loop since 1935",
+      "menu": [
+        "Baby back ribs with Canadian BBQ sauce",
+        "Broiled lamb chops",
+        "Corned beef and cabbage",
+        "Full bar with late kitchen hours"
+      ],
+      "note": "One of the last old-line Loop taverns with celebrity-photo walls and a kitchen that stays open late, useful when everything else downtown has closed.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "timeout-loop-2026"
+      ],
+      "url": "https://millerspub.com/",
+      "lat": 41.8796,
+      "lng": -87.626,
+      "tone": "#26735f",
+      "lanes": [
+        "classic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "italian-village",
+      "name": "Italian Village",
+      "neighborhood": "Loop",
+      "address": "71 W Monroe St",
+      "cuisine": [
+        "Italian",
+        "Pasta",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Date",
+        "Group",
+        "Experience"
+      ],
+      "price": 3,
+      "novelty": 15,
+      "heat": 77,
+      "opened": "1927-01-01",
+      "format": "Chicago's oldest Italian restaurant, family-run since 1927",
+      "menu": [
+        "Chicken Vesuvio",
+        "House-made lasagna and old-school red-sauce pastas",
+        "The Village dining room with twinkling village-scape lights",
+        "Deep Italian wine cellar"
+      ],
+      "note": "Three restaurants in one building, anchored by The Village upstairs: a pre-theater and special-occasion institution that predates almost everything around it.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "timeout-loop-2026"
+      ],
+      "url": "https://italianvillage-chicago.com/",
+      "lat": 41.8806,
+      "lng": -87.6297,
+      "tone": "#c94f31",
+      "lanes": [
+        "classic",
+        "iconic",
+        "personal"
+      ]
+    },
+    {
+      "id": "russian-tea-time",
+      "name": "Russian Tea Time",
+      "neighborhood": "Loop",
+      "address": "77 E Adams St",
+      "cuisine": [
+        "Eastern European",
+        "Tea",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Date",
+        "Experience",
+        "Solo"
+      ],
+      "price": 3,
+      "novelty": 30,
+      "heat": 72,
+      "opened": "1993-01-01",
+      "format": "Samovar-service dining room next to the Art Institute",
+      "menu": [
+        "Beef stroganoff",
+        "Potato vareniki with caramelized onions",
+        "Afternoon tea service with samovar and sweets tower",
+        "Blini with smoked salmon"
+      ],
+      "note": "A Symphony Center and Art Institute companion with mahogany booths and samovar tea service; one of the few downtown rooms built for lingering.",
+      "sourceIds": [
+        "timeout-loop-2026",
+        "official-sites"
+      ],
+      "url": "https://www.russianteatime.com/",
+      "lat": 41.8797,
+      "lng": -87.6252,
+      "tone": "#77516f",
+      "lanes": [
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "the-gage",
+      "name": "The Gage",
+      "neighborhood": "Loop",
+      "address": "24 S Michigan Ave",
+      "cuisine": [
+        "Gastropub",
+        "American",
+        "Irish"
+      ],
+      "occasions": [
+        "Lunch",
+        "Date",
+        "Group"
+      ],
+      "price": 3,
+      "novelty": 32,
+      "heat": 83,
+      "opened": "2007-01-01",
+      "format": "Gastropub facing Millennium Park",
+      "menu": [
+        "Scotch egg",
+        "Fish and chips with malt aioli",
+        "Poutine with braised short rib",
+        "Roasted bone marrow"
+      ],
+      "note": "The most reliable Michigan Avenue answer directly across from Millennium Park: polished pub food, a long whiskey list, and room for groups.",
+      "sourceIds": [
+        "timeout-loop-2026",
+        "official-sites"
+      ],
+      "url": "https://thegagechicago.com/",
+      "lat": 41.8812,
+      "lng": -87.6249,
+      "tone": "#2f6190",
+      "lanes": [
+        "essential",
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "the-dearborn",
+      "name": "The Dearborn",
+      "neighborhood": "Loop",
+      "address": "145 N Dearborn St",
+      "cuisine": [
+        "American",
+        "Tavern",
+        "Seafood"
+      ],
+      "occasions": [
+        "Date",
+        "Group",
+        "Lunch"
+      ],
+      "price": 3,
+      "novelty": 34,
+      "heat": 79,
+      "opened": "2016-01-01",
+      "format": "American tavern in the theater district",
+      "menu": [
+        "Pretzel-crusted chicken schnitzel",
+        "Seafood towers",
+        "Seasonal American plates sized for pre-show timing",
+        "House burger and raw bar"
+      ],
+      "note": "The go-to before a show at the Goodman or Nederlander: an ambitious tavern menu that still gets you to the curtain on time.",
+      "sourceIds": [
+        "timeout-loop-2026",
+        "official-sites"
+      ],
+      "url": "https://www.thedearborntavern.com/",
+      "lat": 41.8843,
+      "lng": -87.6293,
+      "tone": "#26735f",
+      "lanes": [
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "walnut-room",
+      "name": "The Walnut Room",
+      "neighborhood": "Loop",
+      "address": "111 N State St, 7th Floor",
+      "cuisine": [
+        "American",
+        "Chicago Classic",
+        "Holiday"
+      ],
+      "occasions": [
+        "Experience",
+        "Group",
+        "Lunch"
+      ],
+      "price": 2,
+      "novelty": 20,
+      "heat": 74,
+      "opened": "1907-01-01",
+      "format": "The first restaurant ever opened inside a department store",
+      "menu": [
+        "Mrs. Hering's chicken pot pie, from an 1890 recipe",
+        "Seasonal salads under Circassian walnut paneling",
+        "Frango mint desserts",
+        "Holiday dining beside the Great Tree"
+      ],
+      "note": "Seven floors up in the former Marshall Field's, serving the same pot pie for over a century; at the holidays the Great Tree makes it a full destination.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.macysrestaurants.com/",
+      "lat": 41.8837,
+      "lng": -87.6278,
+      "tone": "#b98024",
+      "lanes": [
+        "classic",
+        "iconic",
+        "personal"
+      ]
+    },
+    {
+      "id": "wildberry-pancakes",
+      "name": "Wildberry Pancakes & Cafe",
+      "neighborhood": "Loop",
+      "address": "130 E Randolph St",
+      "cuisine": [
+        "Breakfast",
+        "Brunch",
+        "American"
+      ],
+      "occasions": [
+        "Morning",
+        "Group",
+        "Casual"
+      ],
+      "price": 2,
+      "novelty": 26,
+      "heat": 86,
+      "opened": "2012-01-01",
+      "format": "High-demand breakfast cafe off Millennium Park",
+      "menu": [
+        "Signature berry Bliss pancakes with vanilla creme anglaise",
+        "Red velvet pancakes",
+        "Breakfast burritos and skillets",
+        "Giant cinnamon roll pancakes"
+      ],
+      "note": "Perpetually one of downtown's longest breakfast waits for a reason; put your name in early and walk Millennium Park while you wait.",
+      "sourceIds": [
+        "timeout-loop-2026",
+        "official-sites"
+      ],
+      "url": "https://www.wildberrycafe.com/",
+      "lat": 41.8846,
+      "lng": -87.6231,
+      "tone": "#c94f31",
+      "lanes": [
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "garrett-popcorn",
+      "name": "Garrett Popcorn Shops",
+      "neighborhood": "Loop",
+      "address": "173 N Michigan Ave",
+      "cuisine": [
+        "Snacks",
+        "Chicago Classic",
+        "Sweets"
+      ],
+      "occasions": [
+        "Takeout",
+        "Solo",
+        "Casual"
+      ],
+      "price": 1,
+      "novelty": 12,
+      "heat": 80,
+      "opened": "1949-01-01",
+      "format": "Hot-air popcorn institution since 1949",
+      "menu": [
+        "Garrett Mix: CaramelCrisp plus CheeseCorn in one bag",
+        "CaramelCrisp with pecans or cashews",
+        "Tins for gifting",
+        "Popped fresh in-shop all day"
+      ],
+      "note": "The smell alone marks the Michigan Avenue corner; the sweet-salty Garrett Mix is a legitimate iconic Chicago food, not just a tourist stop.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.garrettpopcorn.com/",
+      "lat": 41.8855,
+      "lng": -87.6244,
+      "tone": "#b98024",
+      "lanes": [
+        "iconic",
+        "classic"
+      ]
+    },
+    {
+      "id": "pizzeria-uno",
+      "name": "Pizzeria Uno",
+      "neighborhood": "River North",
+      "address": "29 E Ohio St",
+      "cuisine": [
+        "Pizza",
+        "Deep Dish",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Casual",
+        "Group",
+        "Experience"
+      ],
+      "price": 2,
+      "novelty": 18,
+      "heat": 84,
+      "opened": "1943-01-01",
+      "format": "The 1943 birthplace of deep dish pizza",
+      "menu": [
+        "Original deep dish with chunky tomato and caramelized crust",
+        "The Numero Uno with sausage, pepperoni, onions, peppers, and mushrooms",
+        "Order on arrival: pies take about 45 minutes",
+        "Sister room Pizzeria Due one block north"
+      ],
+      "note": "Where deep dish was invented; the original corner location still bakes in the same ovens, and the wait is part of the pilgrimage.",
+      "sourceIds": [
+        "eater-deep-dish",
+        "choose-chicago-classics"
+      ],
+      "url": "https://www.unos.com/",
+      "lat": 41.8924,
+      "lng": -87.6268,
+      "tone": "#c94f31",
+      "lanes": [
+        "iconic",
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "lou-malnatis-river-north",
+      "name": "Lou Malnati's Pizzeria",
+      "neighborhood": "River North",
+      "address": "439 N Wells St",
+      "cuisine": [
+        "Pizza",
+        "Deep Dish",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Casual",
+        "Group",
+        "Takeout"
+      ],
+      "price": 2,
+      "novelty": 20,
+      "heat": 90,
+      "opened": "1971-01-01",
+      "format": "The family deep dish standard-bearer since 1971",
+      "menu": [
+        "Buttercrust deep dish",
+        "The Malnati Chicago Classic with a full sausage layer",
+        "The Lou with spinach mix, mushrooms, and roma tomatoes",
+        "Frozen pies shipped nationwide"
+      ],
+      "note": "The Malnati family line runs straight back to the original Pizzeria Uno kitchen, and for many Chicagoans this is the definitive deep dish.",
+      "sourceIds": [
+        "eater-deep-dish",
+        "choose-chicago-classics"
+      ],
+      "url": "https://www.loumalnatis.com/",
+      "lat": 41.8901,
+      "lng": -87.6339,
+      "tone": "#26735f",
+      "lanes": [
+        "iconic",
+        "classic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "giordanos-rush",
+      "name": "Giordano's",
+      "neighborhood": "Magnificent Mile",
+      "address": "730 N Rush St",
+      "cuisine": [
+        "Pizza",
+        "Deep Dish",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Casual",
+        "Group",
+        "Experience"
+      ],
+      "price": 2,
+      "novelty": 18,
+      "heat": 85,
+      "opened": "1974-01-01",
+      "format": "Home of the stuffed deep dish since 1974",
+      "menu": [
+        "Famous stuffed deep dish with a second dough layer",
+        "The cheese-pull the postcards are made of",
+        "Thin crust for the impatient half of the table",
+        "Spinach-stuffed specialty pie"
+      ],
+      "note": "Stuffed pizza is its own genre distinct from classic deep dish, and Giordano's is its flagship; the Rush Street room handles Mag Mile crowds well.",
+      "sourceIds": [
+        "eater-deep-dish",
+        "choose-chicago-classics"
+      ],
+      "url": "https://giordanos.com/",
+      "lat": 41.8954,
+      "lng": -87.6254,
+      "tone": "#2f6190",
+      "lanes": [
+        "iconic",
+        "classic"
+      ]
+    },
+    {
+      "id": "portillos-ontario",
+      "name": "Portillo's",
+      "neighborhood": "River North",
+      "address": "100 W Ontario St",
+      "cuisine": [
+        "Hot Dogs",
+        "Italian Beef",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Lunch",
+        "Casual",
+        "Takeout"
+      ],
+      "price": 1,
+      "novelty": 15,
+      "heat": 88,
+      "opened": "1963-01-01",
+      "format": "The flagship downtown outpost of the beloved hot dog chain born in 1963",
+      "menu": [
+        "Chicago-style hot dog dragged through the garden",
+        "Italian beef dipped with hot giardiniera",
+        "Cheese fries",
+        "Chocolate cake shake"
+      ],
+      "note": "The single most efficient introduction to Chicago fast food: dog, beef, and cake shake under one roof, steps from the Mag Mile.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.portillos.com/",
+      "lat": 41.8933,
+      "lng": -87.6313,
+      "tone": "#c94f31",
+      "lanes": [
+        "iconic",
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "billy-goat-tavern",
+      "name": "Billy Goat Tavern",
+      "neighborhood": "Magnificent Mile",
+      "address": "430 N Michigan Ave, Lower Level",
+      "cuisine": [
+        "Burgers",
+        "Tavern",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Lunch",
+        "Casual",
+        "Solo"
+      ],
+      "price": 1,
+      "novelty": 14,
+      "heat": 79,
+      "opened": "1934-01-01",
+      "format": "Subterranean newspaper-bar institution since 1934",
+      "menu": [
+        "Double cheezborger off the flat-top",
+        "Chips, no fries",
+        "Walls of Royko columns and press memorabilia",
+        "The tavern behind the Cubs' billy goat curse"
+      ],
+      "note": "Hidden on lower Michigan Avenue beneath the Wrigley Building: the bar that inspired the 'cheezborger cheezborger' sketch and fueled generations of newspapermen.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.billygoattavern.com/",
+      "lat": 41.8899,
+      "lng": -87.6244,
+      "tone": "#77516f",
+      "lanes": [
+        "iconic",
+        "classic"
+      ]
+    },
+    {
+      "id": "mr-beef",
+      "name": "Mr. Beef on Orleans",
+      "neighborhood": "River North",
+      "address": "666 N Orleans St",
+      "cuisine": [
+        "Italian Beef",
+        "Sandwiches",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Lunch",
+        "Casual",
+        "Takeout"
+      ],
+      "price": 1,
+      "novelty": 22,
+      "heat": 87,
+      "opened": "1979-01-01",
+      "format": "Counter-service Italian beef stand since 1979",
+      "menu": [
+        "Italian beef, hot and dipped",
+        "Sausage and beef combo",
+        "Sweet and hot peppers",
+        "Standing-counter lunch rush"
+      ],
+      "note": "The stand that inspired The Bear, which brought national lines to a place regulars already knew; order dipped with hot peppers and lean over the counter.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "eater-iconic-crawl-2026-06"
+      ],
+      "url": "https://www.choosechicago.com/listing/mr-beef-on-orleans/",
+      "lat": 41.8946,
+      "lng": -87.6373,
+      "tone": "#26735f",
+      "lanes": [
+        "iconic",
+        "personal"
+      ]
+    },
+    {
+      "id": "purple-pig",
+      "name": "The Purple Pig",
+      "neighborhood": "Magnificent Mile",
+      "address": "444 N Michigan Ave",
+      "cuisine": [
+        "Mediterranean",
+        "Small Plates",
+        "Wine Bar"
+      ],
+      "occasions": [
+        "Date",
+        "Group",
+        "Lunch"
+      ],
+      "price": 3,
+      "novelty": 36,
+      "heat": 88,
+      "opened": "2009-01-01",
+      "format": "Cheese, swine, and wine on the Mag Mile",
+      "menu": [
+        "Milk-braised pork shoulder",
+        "Salt-roasted beets with whipped goat cheese",
+        "Charcuterie and cheese boards",
+        "Deep Mediterranean wine list"
+      ],
+      "note": "The rare Michigan Avenue restaurant locals still fight for seats at; a Bib Gourmand fixture that makes small plates feel generous.",
+      "sourceIds": [
+        "timeout-loop-2026",
+        "michelin-chicago-2025"
+      ],
+      "url": "https://thepurplepigchicago.com/",
+      "lat": 41.8899,
+      "lng": -87.6246,
+      "tone": "#77516f",
+      "lanes": [
+        "essential",
+        "awarded",
+        "personal"
+      ]
+    },
+    {
+      "id": "frontera-grill",
+      "name": "Frontera Grill",
+      "neighborhood": "River North",
+      "address": "445 N Clark St",
+      "cuisine": [
+        "Mexican",
+        "Regional Mexican",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Date",
+        "Group",
+        "Experience"
+      ],
+      "price": 3,
+      "novelty": 30,
+      "heat": 92,
+      "opened": "1987-01-01",
+      "format": "Rick Bayless's genre-defining regional Mexican flagship since 1987",
+      "menu": [
+        "Tacos al carbon with black beans",
+        "Seasonal moles that rotate with the market",
+        "Carne asada with rustic salsas",
+        "Front-bar margaritas worth the wait alone"
+      ],
+      "note": "A James Beard Outstanding Restaurant winner that changed how America thinks about regional Mexican cooking, with sibling Topolobampo next door for the tasting-menu version.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "michelin-chicago-2025"
+      ],
+      "url": "https://www.rickbayless.com/restaurants/frontera-grill/",
+      "lat": 41.8903,
+      "lng": -87.631,
+      "tone": "#c94f31",
+      "lanes": [
+        "essential",
+        "awarded",
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "shaws-crab-house",
+      "name": "Shaw's Crab House",
+      "neighborhood": "River North",
+      "address": "21 E Hubbard St",
+      "cuisine": [
+        "Seafood",
+        "Oyster Bar",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Date",
+        "Group",
+        "Experience"
+      ],
+      "price": 4,
+      "novelty": 22,
+      "heat": 84,
+      "opened": "1984-01-01",
+      "format": "Retro-glam seafood house and oyster bar since 1984",
+      "menu": [
+        "Chilled shellfish platters",
+        "Alaskan king crab legs",
+        "Rotating oyster selection at the Oyster Bar",
+        "Key lime pie"
+      ],
+      "note": "Chicago's flagship seafood institution: the wood-paneled dining room does occasion dinners, while the livelier Oyster Bar side takes walk-ins.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "timeout-loop-2026"
+      ],
+      "url": "https://www.shawscrabhouse.com/",
+      "lat": 41.89,
+      "lng": -87.6272,
+      "tone": "#2f6190",
+      "lanes": [
+        "classic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "gibsons-rush",
+      "name": "Gibsons Bar & Steakhouse",
+      "neighborhood": "Gold Coast",
+      "address": "1028 N Rush St",
+      "cuisine": [
+        "Steakhouse",
+        "American",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Experience",
+        "Group",
+        "Date"
+      ],
+      "price": 4,
+      "novelty": 18,
+      "heat": 91,
+      "opened": "1989-01-01",
+      "format": "The Gold Coast power steakhouse since 1989",
+      "menu": [
+        "W.R.'s Chicago Cut bone-in ribeye",
+        "Colossal shrimp cocktail",
+        "Gibsons Prime Angus program, the first USDA-certified for a restaurant group",
+        "Baseball-sized desserts built for the table"
+      ],
+      "note": "The definitive see-and-be-seen Chicago steakhouse; the bar scene on the Viagra Triangle corner is its own institution.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.gibsonssteakhouse.com/",
+      "lat": 41.9017,
+      "lng": -87.6282,
+      "tone": "#77516f",
+      "lanes": [
+        "iconic",
+        "classic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "harry-carays",
+      "name": "Harry Caray's Italian Steakhouse",
+      "neighborhood": "River North",
+      "address": "33 W Kinzie St",
+      "cuisine": [
+        "Steakhouse",
+        "Italian",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Group",
+        "Date",
+        "Casual"
+      ],
+      "price": 3,
+      "novelty": 16,
+      "heat": 75,
+      "opened": "1987-01-01",
+      "format": "Italian steakhouse in a landmark River North castle building",
+      "menu": [
+        "Prime steaks and chops",
+        "Chicken Vesuvio",
+        "Baseball memorabilia rooms",
+        "Holy Cow! bar"
+      ],
+      "note": "Part steakhouse, part Chicago baseball museum, in one of River North's most distinctive buildings; a dependable group pick with real history on the walls.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.harrycarays.com/",
+      "lat": 41.8894,
+      "lng": -87.6291,
+      "tone": "#b98024",
+      "lanes": [
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "mannys-deli",
+      "name": "Manny's Cafeteria & Delicatessen",
+      "neighborhood": "South Loop",
+      "address": "1141 S Jefferson St",
+      "cuisine": [
+        "Deli",
+        "Jewish",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Lunch",
+        "Casual",
+        "Solo"
+      ],
+      "price": 2,
+      "novelty": 20,
+      "heat": 86,
+      "opened": "1942-01-01",
+      "format": "Cafeteria-line Jewish deli since 1942",
+      "menu": [
+        "Hand-cut corned beef piled on rye",
+        "Matzo ball soup",
+        "Potato pancakes",
+        "Slide-your-tray cafeteria line worked by career carvers"
+      ],
+      "note": "Politicians, cops, and pilgrims all eat the same corned beef here; the cafeteria line itself is one of the city's great food rituals.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "eater-iconic-crawl-2026-06"
+      ],
+      "url": "https://mannysdeli.com/",
+      "lat": 41.8674,
+      "lng": -87.6421,
+      "tone": "#26735f",
+      "lanes": [
+        "iconic",
+        "classic",
+        "personal"
+      ]
+    },
+    {
+      "id": "als-beef-taylor",
+      "name": "Al's #1 Italian Beef",
+      "neighborhood": "Little Italy",
+      "address": "601 W Taylor St",
+      "cuisine": [
+        "Italian Beef",
+        "Sandwiches",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Lunch",
+        "Casual",
+        "Takeout"
+      ],
+      "price": 1,
+      "novelty": 16,
+      "heat": 85,
+      "opened": "1938-01-01",
+      "format": "The original Italian beef stand, founded 1938",
+      "menu": [
+        "Italian beef wet with hot giardiniera",
+        "Italian sausage and beef combo",
+        "Fries",
+        "Stand-up counter for the proper 'Chicago lean'"
+      ],
+      "note": "Widely credited as the birthplace of the Italian beef; the Taylor Street original is the version to measure every other beef against.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "eater-iconic-crawl-2026-06"
+      ],
+      "url": "https://www.alsbeef.com/",
+      "lat": 41.8695,
+      "lng": -87.6434,
+      "tone": "#c94f31",
+      "lanes": [
+        "iconic",
+        "classic"
+      ]
+    },
+    {
+      "id": "greek-islands",
+      "name": "Greek Islands",
+      "neighborhood": "Greektown",
+      "address": "200 S Halsted St",
+      "cuisine": [
+        "Greek",
+        "Seafood",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Group",
+        "Date",
+        "Casual"
+      ],
+      "price": 2,
+      "novelty": 18,
+      "heat": 78,
+      "opened": "1971-01-01",
+      "format": "Greektown family anchor since 1971",
+      "menu": [
+        "Flaming saganaki finished tableside with an 'Opa!'",
+        "Lamb with artichokes avgolemono",
+        "Whole grilled sea bass",
+        "Family-style platters built for big tables"
+      ],
+      "note": "The saganaki flame was popularized on this stretch of Halsted, and Greek Islands remains the neighborhood's most dependable big-group room.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://www.greekislands.net/",
+      "lat": 41.879,
+      "lng": -87.647,
+      "tone": "#2f6190",
+      "lanes": [
+        "classic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "pequods-pizza",
+      "name": "Pequod's Pizza",
+      "neighborhood": "Lincoln Park",
+      "address": "2207 N Clybourn Ave",
+      "cuisine": [
+        "Pizza",
+        "Pan Pizza",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Casual",
+        "Group",
+        "Takeout"
+      ],
+      "price": 2,
+      "novelty": 28,
+      "heat": 93,
+      "opened": "1992-01-01",
+      "format": "Caramelized-crust pan pizza with a cult following",
+      "menu": [
+        "Pan pizza ringed with blackened caramelized cheese crust",
+        "Sausage and giardiniera pies",
+        "Deep-dish-adjacent but its own genre",
+        "Expect a wait or order ahead"
+      ],
+      "note": "The caramelized crust ring makes Pequod's the pizza even deep dish skeptics endorse; routinely named among the best pizzas in the country.",
+      "sourceIds": [
+        "eater-deep-dish",
+        "eater-iconic-crawl-2026-06"
+      ],
+      "url": "https://pequodspizza.com/",
+      "lat": 41.9219,
+      "lng": -87.6646,
+      "tone": "#b98024",
+      "lanes": [
+        "iconic",
+        "essential",
+        "personal"
+      ]
+    },
+    {
+      "id": "twin-anchors",
+      "name": "Twin Anchors Restaurant & Tavern",
+      "neighborhood": "Old Town",
+      "address": "1655 N Sedgwick St",
+      "cuisine": [
+        "Ribs",
+        "Tavern",
+        "Chicago Classic"
+      ],
+      "occasions": [
+        "Casual",
+        "Group",
+        "Date"
+      ],
+      "price": 2,
+      "novelty": 15,
+      "heat": 80,
+      "opened": "1932-01-01",
+      "format": "Old Town rib tavern pouring since 1932",
+      "menu": [
+        "Fall-off-the-bone baby back ribs with zesty sauce",
+        "Positively no dancing, per the famous sign",
+        "Frank Sinatra's favorite booth",
+        "Cash-friendly corner-tavern bar"
+      ],
+      "note": "A tavern that survived Prohibition and became Sinatra's rib stop of choice; the no-dancing sign and jukebox are original equipment.",
+      "sourceIds": [
+        "choose-chicago-classics",
+        "official-sites"
+      ],
+      "url": "https://twinanchorsribs.com/",
+      "lat": 41.9119,
+      "lng": -87.6386,
+      "tone": "#77516f",
+      "lanes": [
+        "classic",
+        "iconic",
+        "personal"
+      ]
     }
   ],
   "reservationLinks": {
@@ -2058,6 +3144,46 @@ window.DASHBOARD_DATA = {
       "label": "Official site",
       "url": "https://www.bartuttochicago.com/",
       "note": "Confirm daypart hours and dinner availability."
+    },
+    "gibsons-rush": {
+      "label": "Reserve on OpenTable",
+      "url": "https://www.gibsonssteakhouse.com/",
+      "note": "Books far ahead for prime times; the bar takes walk-ins."
+    },
+    "frontera-grill": {
+      "label": "Reserve via Tock",
+      "url": "https://www.exploretock.com/fronteragrill",
+      "note": "Reservations release in advance and go quickly; the bar holds some walk-in seats."
+    },
+    "shaws-crab-house": {
+      "label": "Official site",
+      "url": "https://www.shawscrabhouse.com/",
+      "note": "Main dining room reserves ahead; the Oyster Bar side is walk-in friendly."
+    },
+    "the-gage": {
+      "label": "Official site",
+      "url": "https://thegagechicago.com/",
+      "note": "Reserve ahead on museum-crowd weekends and before Millennium Park events."
+    },
+    "the-dearborn": {
+      "label": "Official site",
+      "url": "https://www.thedearborntavern.com/",
+      "note": "Tell them your curtain time; pre-theater seatings move fast."
+    },
+    "walnut-room": {
+      "label": "Official site",
+      "url": "https://www.macysrestaurants.com/",
+      "note": "Holiday Great Tree season requires reservations well in advance."
+    },
+    "italian-village": {
+      "label": "Official site",
+      "url": "https://italianvillage-chicago.com/",
+      "note": "The Village upstairs takes reservations; useful pre-theater."
+    },
+    "pizzeria-uno": {
+      "label": "Official site",
+      "url": "https://www.unos.com/",
+      "note": "No reservations at the original; put your name in and expect a wait plus 45-minute bake times."
     }
   }
 };
